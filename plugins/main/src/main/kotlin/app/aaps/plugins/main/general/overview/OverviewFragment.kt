@@ -990,6 +990,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                     carbAnimation?.selectDrawable(0)
                 }
             }
+            cobText =  TIR_24h_4_10.toString() + " %" + " - " + TIR_5d_4_10.toString() + " %"
             binding.infoLayout.cob.text = cobText
         }
     }
