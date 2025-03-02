@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Autotune-->
+    <string name="key_autotune_last_run" translatable="false">key_autotune_last_run</string>
+
+    <string name="dynisf_adjust_sensitivity">Enable TDD based sensitivity ratio for basal and glucose target modification</string>
+    <string name="dynisf_adjust_sensitivity_summary">Uses the last 24h TDD/7D TDD to calculate sensitivity ratio used for increasing or decreasing basal rate, and also adjust glucose target if these options are enabled, in the same way Autosens does. It is recommended to start with this option turned off</string>
+    <string name="dyn_isf_adjust_title" formatted="false">DynamicISF Adjustment Factor %</string>
+    <string name="dyn_isf_adjust_summary" formatted="false">Adjustment factor for DynamicISF. Set more than 100% for more aggressive correction doses, and less than 100% for less aggressive corrections.</string>
+    <string name="high_temptarget_raises_sensitivity_title">High temptarget raises sensitivity</string>
+    <string name="high_temptarget_raises_sensitivity_summary"><![CDATA[Raise sensitivity for temptargets >= 100]]></string>
+    <string name="low_temptarget_lowers_sensitivity_title">Low temptarget lowers sensitivity</string>
+    <string name="low_temptarget_lowers_sensitivity_summary"><![CDATA[Lower sensitivity for temptargets < 100]]></string>
+    <string name="openapssmb">OpenAPS SMB</string>
+    <string name="openaps_smb_dynamic_isf">Dynamic ISF</string>
+    <string name="openaps_auto_isf">Auto ISF</string>
+    <string name="smb_interval_summary">How frequently SMBs will be given in min</string>
+    <string name="resistance_lowers_target_title">Resistance lowers target</string>
+    <string name="resistance_lowers_target_summary">When resistance is detected, lower the target glucose</string>
+    <string name="sensitivity_raises_target_title">Sensitivity raises target</string>
+    <string name="sensitivity_raises_target_summary">When sensitivity is detected, raise the target glucose</string>
+    <string name="openapsma_disabled">Plugin is disabled</string>
+    <string name="openapsma_no_glucose_data">No glucose data available</string>
+    <string name="openaps_no_as_data">No autosens data available</string>
+    <string name="dynisf_shortname">DYNISF</string>
+    <string name="autoisf_shortname">AUTOISF</string>
+    <string name="executing">Executing</string>
+    <string name="openapsama">OpenAPS AMA</string>
+    <string name="array_of_elements">Array of %1$d elements.\nActual value:</string>
+    <string name="oaps_shortname">OAPS</string>
+    <string name="description_ama">State of the algorithm in 2017</string>
+    <string name="description_smb">Most recent algorithm for advanced users</string>
+    <string name="description_smb_dynamic_isf">Most recent algorithm for advanced users with dynamic/automatic ISF</string>
+    <string name="description_auto_isf">Most recent algorithm for advanced users with AutoISF extensions</string>
+    <string name="openapsama_bolus_snooze_dia_divisor">Bolus snooze dia divisor</string>
+
+    <string name="openapsma_run">Run now</string>
+    <string name="openapsma_last_run_label">Last run</string>
+    <string name="openapsma_input_parameters_label">Input parameters</string>
+    <string name="openapsma_glucose_status_label">Glucose status</string>
+    <string name="openapsma_current_temp_label">Current temp</string>
+    <string name="openapsma_iob_data_label">IOB data</string>
+    <string name="openapsma_profile_label">Profile</string>
+    <string name="openapsma_meal_data_label">Meal data</string>
+    <string name="openapsma_request_label">Request</string>
+    <string name="constraints">Constraints</string>
+    <string name="openapsma_autosensdata_label">Autosens data</string>
+    <string name="openapsma_script_debug_data_label">Script debug</string>
+    <string name="openapsama_use_autosens">Use Autosens feature</string>
+    <string name="openapsma_max_basal_title">Max U/h a Temp Basal can be set to</string>
+    <string name="openapsma_max_basal_summary">This value is called max basal in OpenAPS context</string>
+    <string name="openapsma_max_iob_title">Maximum basal IOB OpenAPS can deliver [U]</string>
+    <string name="openapsma_max_iob_summary">This value is called Max IOB in OpenAPS context\nThis is maximal insulin in [U] APS can deliver at once.</string>
+    <string name="openapsama_autosens_adjust_targets_summary">Default value: true\nThis is used to allow autosens to adjust BG targets, in addition to ISF and basals.</string>
+    <string name="openapsama_autosens_adjust_targets">Autosens adjust targets, too</string>
+    <string name="openapsama_min_5m_carb_impact" translatable="false">min_5m_carbimpact</string>
+    <string name="openapsama_min_5m_carb_impact_summary">Default value: 3.0 (AMA) or 8.0 (SMB). This is a setting for default carb absorption impact per 5 minutes. The default is an expected 3mg/dl/5min. This affects how fast COB are decayed, and how much carb absorption is assumed in calculating future predicted BG, when BG is falling more than expected, or not rising as much as expected.</string>
+    <string name="openapsama_max_daily_safety_multiplier_summary">Default value: 3 This is a key OpenAPS safety cap. What this does is limit your basals to be 3x (in this people) your biggest basal rate. You likely will not need to change this, but you should be aware that’s what is discussed about “3x max daily; 4x current” for safety caps.</string>
+    <string name="openapsama_current_basal_safety_multiplier_summary">Default value: 4 This is the other half of the key OpenAPS safety caps, and the other half of “3x max daily; 4x current” of the safety caps. This means your basal, regardless of max basal set on your pump, cannot be any higher than this number times the current level of your basal. This is to prevent people from getting into dangerous territory by setting excessively high max basals before understanding how the algorithm works. Again, the default is 4x; most people will never need to adjust this and are instead more likely to need to adjust other settings if they feel like they are “running into” this safety cap.</string>
+    <string name="openapsama_bolus_snooze_dia_divisor_summary">Default value: 2\nBolus snooze is enacted after you do a meal bolus, so the loop won’t counteract with low temps when you’ve just eaten. The example here and default is 2; so a 3 hour DIA means that bolus snooze will be gradually phased out over 1.5 hours (3DIA/2).</string>
+    <string name="openapsama_link_to_preference_json_doc_txt">Attention!\nNormally you do not have to change these values below. Please CLICK HERE and READ the text and make sure you UNDERSTAND it before change any of these values.</string>
+    <string name="openapsama_link_to_preference_json_doc" translatable="false">http://openaps.readthedocs.io/en/latest/docs/walkthrough/phase-3/beyond-low-glucose-suspend.html</string>
+    <string name="always_use_short_avg">Always use short average delta instead of simple delta</string>
+    <string name="always_use_short_avg_summary">Useful when data from unfiltered sources like xDrip+ gets noisy.</string>
+    <string name="openapsama_max_daily_safety_multiplier">Max daily safety multiplier</string>
+    <string name="openapsama_current_basal_safety_multiplier">Current basal safety multiplier</string>
+    <string name="openapssmb_max_iob_title">Maximum total IOB OpenAPS can\'t go over [U]</string>
+    <string name="openapssmb_max_iob_summary">This value is called Max IOB in OpenAPS context\nOpenAPS will not add more insulin if current IOB is greater than this value</string>
+    <string name="enable_uam">Enable UAM</string>
+    <string name="enable_smb">Enable SMB</string>
+    <string name="enable_smb_summary">Use Super Micro Boluses instead of temp basal for faster action</string>
+    <string name="enable_uam_summary">Detection of Unannounced meals</string>
+    <string name="enable_smb_always">Enable SMB always</string>
+    <string name="enable_smb_always_summary">Enable SMB always independently to COB, temp targets or boluses. Possible only with BG sources with advanced filtering of data</string>
+    <string name="enable_smb_after_carbs">Enable SMB after carbs</string>
+    <string name="enable_smb_after_carbs_summary">Enable SMB for 6h after carbs, even with 0 COB. Possible only with BG sources with advanced filtering of data</string>
+    <string name="enable_smb_with_cob">Enable SMB with COB</string>
+    <string name="enable_smb_with_cob_summary">Enable SMB when there is COB active.</string>
+    <string name="enable_smb_with_temp_target">Enable SMB with temp targets</string>
+    <string name="enable_smb_with_temp_target_summary">Enable SMB when there is temp target active (eating soon, exercise)</string>
+    <string name="enable_smb_with_high_temp_target">Enable SMB with high temp targets</string>
+    <string name="enable_smb_with_high_temp_target_summary">Enable SMB when there is high temp target active (exercise, above 100 mg/dl or 5.5 mmol/l)</string>
+    <string name="smb_max_minutes_summary">Max minutes of basal to limit SMB to</string>
+    <string name="uam_smb_max_minutes">UAM SMB max minutes</string>
+    <string name="uam_smb_max_minutes_summary">Max minutes of basal to limit SMB to for UAM</string>
+    <string name="carbs_req_threshold">Minimum Carbs Required For Suggestion</string>
+    <string name="carbs_req_threshold_summary">Minimum grams of carbs to display a carbs suggestion alert. Carbs suggestions below this number will not trigger a notification.</string>
+    <string name="lgs_threshold_summary">BG value below which insulin is suspended. Default value uses standard target model. User can set value between 60mg/dl (3.3mmol/l) and 100mg/dl(5.5mmol/l). Values below 65/3.6 result in use of default model</string>
+    <string name="lgs_threshold_title">BG level below which low glucose suspend occurs</string>
+
+    <string name="increasing_max_basal">Increasing max basal value because setting is lower than your max basal in profile</string>
+    <string name="max_basal_multiplier">max basal multiplier</string>
+    <string name="max_daily_basal_multiplier">max daily basal multiplier</string>
+    <string name="smb_disabled_in_preferences">SMB disabled in preferences</string>
+    <string name="uam_disabled_in_preferences">UAM disabled in preferences</string>
+    <string name="autosens_disabled_in_preferences">Autosens disabled in preferences</string>
+    <string name="use_dynamic_sensitivity_title">Enable dynamic sensitivity</string>
+    <string name="use_dynamic_sensitivity_summary">Adjust algorithm to use dynamic sensitivity instead of profile value</string>
+
+    <!--    Verify if needed in safety-->
+    <string name="limiting_iob">Limiting IOB to %1$.1f U because of %2$s</string>
+    <string name="maxvalueinpreferences">max value in preferences</string>
+    <string name="hardlimit">hard limit</string>
+
+    <!--    Autotune   -->
+    <string name="insulin_peak">Peak</string>
+
+    <!--    Loop -->
+    <string name="key_smb_enable_carbs_suggestions_threshold" translatable="false">smb_enable_carbs_suggestions_threshold</string>
+
+    <string name="run_now">Run now</string>
+    <string name="smb_frequency_exceeded">A bolus was delivered within the last 3 minutes, skipping SMB</string>
+    <string name="pump_not_initialized">Pump not initialized!</string>
+    <string name="loop_shortname">LOOP</string>
+    <string name="description_loop">Activate or deactivate the implementation triggering the loop.</string>
+    <string name="no_aps_selected">NO APS SELECTED OR PROVIDED RESULT</string>
+    <string name="ignore5m">Ignore 5m</string>
+    <string name="ignore15m">Ignore 15m</string>
+    <string name="ignore30m">Ignore 30m</string>
+    <string name="carbs_suggestion">Carbs Suggestion</string>
+    <string name="open_loop_new_suggestion">New suggestion available</string>
+    <string name="basal_set_correctly">Basal set correctly</string>
+    <string name="last_run_label">Last run</string>
+    <string name="loop_aps_label">APS</string>
+    <string name="request_label">Request</string>
+    <string name="loop_constraints_processed_label">After processed constraints</string>
+    <string name="loop_tbr_request_time_label">Temp basal request time</string>
+    <string name="loop_tbr_execution_time_label">Temp basal execution time</string>
+    <string name="loop_tbr_set_by_pump_label">Temp basal set by pump</string>
+    <string name="loop_smb_request_time_label">SMB request time</string>
+    <string name="loop_smb_execution_time_label">SMB execution time</string>
+    <string name="loop_smb_set_by_pump_label">SMB set by pump</string>
+    <string name="loop_open_mode_min_change">Minimal request change [%]</string>
+    <string name="loop_open_mode_min_change_summary" formatted="false">Open Loop will popup new change request only if change is bigger than this value in %. Default value is 20%</string>
+    <string name="fallback_smb_no_tdd">Fallback to SMB. Not enough TDD data.</string>
+    <string name="fallback_to_isf_no_tdd">Fallback to profile sensitivity. Not enough data. Reason: %1$s</string>
+
+    <!-- Autotune -->
+    <string name="autotune_description">Help for potential adjustments of profile (ISF, carb ratio, and basal rates)</string>
+    <string name="autotune_shortname">AT</string>
+    <string name="autotune_settings">Autotune settings</string>
+    <string name="autotune_auto_title">Automation Switch Profile</string>
+    <string name="autotune_auto_summary">If enabled, Autotune will automatically update and switch to input profile after calculation from an automation rule.</string>
+    <string name="autotune_categorize_uam_as_basal_title">Categorize UAM as basal</string>
+    <string name="autotune_categorize_uam_as_basal_summary">Enable only if you have reliably entered all carbs eaten, with this option sudden rises seen by Autotune will be used to recommend changes to the basal rate.</string>
+    <string name="autotune_tune_insulin_curve_title">Tune insulin curve</string>
+    <string name="autotune_tune_insulin_curve_summary">Enable only if you use free peak. This option will tune peak and DIA durations</string>
+    <string name="autotune_default_tune_days_title">Number of days of data</string>
+    <string name="autotune_circadian_ic_isf_title">Apply average result in circadian IC/ISF</string>
+    <string name="autotune_circadian_ic_isf_summary">Autotune will not tune circadian variations, this option only apply the average tuning of IC and ISF to your circadian input profile</string>
+    <string name="autotune_additional_log_title">Include more log information for debugging</string>
+    <string name="autotune_additional_log_summary">Switch on only if requested by dev to send more log information to help debugging Autotune plugin</string>
+    <string name="autotune_default_tune_days_summary">Default number of days of data to be processed by Autotune (up to 30)</string>
+    <string name="autotune_tunedprofile_name">Tuned</string>
+    <string name="autotune_profile">Profile :</string>
+    <string name="autotune_last_run">Last run :</string>
+    <string name="autotune_warning">Warning :</string>
+    <string name="autotune_ic_warning">Selected profile has %1$d IC values. Autotune will use %2$.2f g/U</string>
+    <string name="autotune_isf_warning">Selected profile has %1$d ISF values. Autotune will use %2$.1f %3$s/U</string>
+    <string name="autotune_error">Error in input data, try to run again autotune or reduce the number of days</string>
+    <string name="autotune_error_more_days">Error in input data, increase the number of days</string>
+    <string name="autotune_warning_during_run">Autotune calculation started, please be patient</string>
+    <string name="autotune_warning_after_run">Check the results carefully before using it!</string>
+    <string name="autotune_partial_result">Partial result day %1$d / %2$d tuned</string>
+    <string name="autotune_result">Result: %1$s</string>
+    <string name="autotune_param">Param</string>
+    <string name="autotune_percent">%</string>
+    <string name="autotune_missing">Missing</string>
+    <string name="autotune_run">Run Autotune</string>
+    <string name="autotune_check_input_profile_button">Check input profile</string>
+    <string name="autotune_compare_profile">Compare profiles</string>
+    <string name="autotune_copy_localprofile_button">Copy to local profile</string>
+    <string name="autotune_update_input_profile_button">Update input profile</string>
+    <string name="autotune_revert_input_profile_button">Revert input profile</string>
+    <string name="autotune_copy_local_profile_message">Create a new local profile from this Autotune Profile?</string>
+    <string name="autotune_update_local_profile_message">Update %1$s profile with Autotune Profile?</string>
+    <string name="autotune_revert_local_profile_message">Revert %1$s profile with Input Profile?</string>
+    <string name="autotune_profile_invalid">Profile invalid</string>
+    <string name="autotune_log_title" translatable="false">|Param|Profile|Tuned|%/Miss.\n</string>
+    <string name="autotune_log_separator" translatable="false">+------------------------------------------\n</string>
+    <string name="autotune_log_peak" translatable="false">| %1$4.4s |\t%2$d |\t%3$d |\n</string>
+    <string name="autotune_log_dia" translatable="false">| %1$4.4s |\t%2$3.1f |\t%3$3.1f |\n</string>
+    <string name="autotune_log_ic_isf" translatable="false">| %1$4.4s | %2$3.3f |\t%3$3.3f |\n</string>
+    <string name="autotune_log_basal" translatable="false">|\t%1$02.0f\t| %2$3.3f |%3$3.3f\t| %5$.0f%% / %4$d\n</string>
+    <string name="autotune_log_sum_basal" translatable="false">|\t∑\t|\t%1$3.1f |\t%2$3.1f |\n</string>
+    <string name="not_available_full">Not available</string>
+    <string name="pump_disconnected">Pump disconnected</string>
+    <string name="key_openapsaimi_settings">key_openapsaimi_settings</string>
+    <string name="openapsaimi">"OpenapsAIMI Settings "</string>
+    <string name="openapsaimi_maxsmb_summary">Value of max smb size</string>
+    <string name="key_openapsaimi_max_smb">key_openapsaimi_max_smb</string>
+    <string name="openapsaimi_maxsmb_title">OpenapsAIMI Max SMB</string>
+    <string name="description_openapsaimi">Small micro boluses based on Artifical Intelligence and Machine Learning.</string>
+    <string name="oaps_aimi_shortname">OpenApsAIMI</string>
+    <string name="key_aimiweight">key_aimiweight</string>
+    <string name="key_tdd7">key_tdd7</string>
+    <string name="key_cho">key_cho</string>
+    <string name="key_B30_upperBG">key_B30_upperBG</string>
+    <string name="key_B30_upperdelta">key_B30_upperdelta</string>
+    <string name="key_B30_duration">key_B30_duration</string>
+    <string name="count_steps_watch">count_steps_watch</string>
+    <string name="oaps_aimi_evening_factor_summary">% of Reactivity of the plugin between 6 pm and midnight</string>
+    <string name="key_oaps_aimi_evening_factor">key_oaps_aimi_evening_factor</string>
+    <string name="oaps_aimi_evening_factor_title">Evening Reactivity Percentage</string>
+    <string name="oaps_aimi_afternoon_factor_title">Afternoon Reactivity Percentage</string>
+    <string name="oaps_aimi_morning_factor_title">Morning Reactivity Percentage</string>
+    <string name="oaps_aimi_morning_factor_summary">Morning Reactivity Percentage between midnight and 11 am</string>
+    <string name="key_oaps_aimi_morning_factor">key_oaps_aimi_morning_factor</string>
+    <string name="oaps_aimi_afternoon_factor_summary">Afternoon reactivity percentage between 12pm and 6 pm</string>
+    <string name="key_oaps_aimi_afternoon_factor">key_oaps_aimi_afternoon_factor</string>
+    <string name="key_oaps_aimi_hyper_factor">key_oaps_aimi_hyper_factor</string>
+    <string name="key_DynISFAdjusthyper">key_DynISFAdjusthyper</string>
+    <string name="key_DynISF_Adjust">key_DynISF_Adjust</string>
+    <string name="oaps_aimi_hyper_factor_summary"><![CDATA[Reactivity factor when bg > 120]]></string>
+    <string name="oaps_aimi_hyper_factor_title"><![CDATA[Reactivity factor BG > 120, for Child BG > 180]]></string>
+    <string name="DynISFAdjusthyper_summary"><![CDATA[Increasing this value will increase the velocity to send smb when bg > 120]]></string>
+    <string name="DynISFAdjusthyper_title"><![CDATA[Dynisf Adjustment factor % BG > 120]]></string>
+    <string name="key_enable_basal">key_enable_basal</string>
+    <string name="prebolus_meal_mode_summary">If you set a note in action page, with the work meal, you will receive one time this value like a pre-bolus.</string>
+    <string name="key_prebolus_meal_mode">key_prebolus_meal_mode</string>
+    <string name="prebolus_meal_mode_title">Meal mode pre-bolus</string>
+    <string name="prebolus_highcarb_mode_title">Mode high carb pre-bolus</string>
+    <string name="key_prebolus_highcarb_mode">key_prebolus_highcarb_mode</string>
+    <string name="prebolus_highcarb_mode_summary">If you set a note in action page, with the word highcarb, you will receive this pre-bolus one time.</string>
+    <string name="number_day_ML_training_summary">Number of day to train the model</string>
+    <string name="key_nb_day_ML_training">key_nb_day_ML_training</string>
+    <string name="nb_day_ML_training_title">ML number training day</string>
+    <string name="key_enable_ML_training">key_enable_ML_training</string>
+    <string name="nb_minutes_ML_training_title">Nb minutes to train the data</string>
+    <string name="number_minutes_training_summary">Nb minutes to train the data for the ML engine</string>
+    <string name="number_epoch_training_summary">NB Epoch to train the data</string>
+    <string name="nb_epoch_ML_training_title">NB Epoch to train the data</string>
+    <string name="key_nb_epoch_ML_training">key_nb_epoch_ML_training</string>
+    <string name="key_nb_learningrate_ML_training">key_nb_learningrate_ML_training</string>
+    <string name="number_learningrate_training_summary">nb learning rate to train the data</string>
+    <string name="nb_learningrate_ML_training_title">learning rate to train the data</string>
+    <string name="number_iteration_training_summary">Nb time it will try before stopping the loop if it can not get a satisfying result.</string>
+    <string name="key_nb_iteration_ML_training">key_nb_iteration_ML_training</string>
+    <string name="nb_iteration_ML_training_title">NB iteration stopping the loop</string>
+    <string name="DynISF_Adjust_summary" formatted="false">Increase this value greater than 100 if you want to receive more smb. The opposite is true if you receive too much smb.</string>
+    <string name="DynISF_Adjust_title" formatted="false">DynISF factor to increase or discrease the number of SMB</string>
+    <string name="oaps_aimi_mealAdjFact_summary">DynISF adjustment factor for Meal mode</string>
+    <string name="oaps_aimi_mealAdjFact_title">Meal Mode DynISF factor</string>
+    <string name="Enable_basal_title">Enable Basal</string>
+    <string name="Enable_basal_summary">This option will enable basal from the profile when bg is greater than 80 and delta not negative.</string>
+    <string name="countsteps_watch_title">Enable Counting steps from the watch</string>
+    <string name="countsteps_watch_summary">This option will use the hardware from the watch instead of the phone.</string>
+    <string name="oaps_aimi_weight_summary">Weight in kg to calculate the basal</string>
+    <string name="oaps_aimi_weight_title">Weight in kg</string>
+    <string name="oaps_aimi_tdd7_summary">TDD average 7 days</string>
+    <string name="oaps_aimi_tdd7_title">TDD 7 days</string>
+    <string name="oaps_aimi_cho_summary">Average carbs for a meal. it\'s an estimation not a precise value</string>
+    <string name="oaps_aimi_cho_title">CHO Meal average lunch or dinner</string>
+    <string name="aimi_preferences">AIMI specifics settings</string>
+    <string name="AAPS_SMB_Settings">AAPS SMB Settings</string>
+    <string name="oaps_aimi_enableMlTraining_title">Enable ML training calculation</string>
+    <string name="OApsAIMI_MealFactor_summary">% of insulin required by the ai for the meal mode.</string>
+    <string name="OApsAIMI_MealFactor_title">Meal mode reactivity percentage</string>
+    <string name="oaps_aimi_meal_interval_summary">Interval between SMB for the meal mode.</string>
+    <string name="oaps_aimi_meal_interval_title">SMB interval Meal Mode</string>
+    <string name="oaps_aimi_highcarbAdjFact_summary">DynISF adjustment factor for High Carb mode.</string>
+    <string name="oaps_aimi_highcarbAdjFact_title">High Carb Mode DynISF factor</string>
+    <string name="OApsAIMI_HC_Factor_summary">% of insulin required by the ai for the High Carb mode.</string>
+    <string name="OApsAIMI_HC_Factor_title">High Carb mode reactivity percentage</string>
+    <string name="oaps_aimi_HC_interval_summary">Interval between SMB for the high carb mode.</string>
+    <string name="oaps_aimi_HC_interval_title">SMB interval High Carb Mode</string>
+    <string name="prebolus_snack_mode_summary">If you set a note in action page, with the word snack, you will receive this pre-bolus one time.</string>
+    <string name="prebolus_snack_mode_title">Mode snack pre-bolus</string>
+    <string name="oaps_aimi_snackAdjFact_summary">DynISF adjustment factor for Snack mode.</string>
+    <string name="oaps_aimi_snackAdjFact_title">Snack Mode DynISF factor</string>
+    <string name="OApsAIMI_snack_Factor_summary">% of insulin required by the ai for the Snack mode.</string>
+    <string name="OApsAIMI_snack_Factor_title">Snack mode reactivity percentage</string>
+    <string name="oaps_aimi_snack_interval_summary">Interval between SMB for the snack mode.</string>
+    <string name="oaps_aimi_snack_interval_title">SMB interval Snack Mode</string>
+    <string name="oaps_aimi_sleepAdjFact_summary">DynISF adjustment factor for Sleep mode.</string>
+    <string name="oaps_aimi_sleepAdjFact_title">Sleep Mode DynISF factor</string>
+    <string name="OApsAIMI_sleep_Factor_summary">% of insulin required by the ai for the Sleep mode.</string>
+    <string name="OApsAIMI_sleep_Factor_title">Sleep mode reactivity percentage</string>
+    <string name="oaps_aimi_sleep_interval_summary">Interval between SMB for the sleep mode.</string>
+    <string name="oaps_aimi_sleep_interval_title">SMB interval Sleep Mode</string>
+    <string name="OApsAIMI_Enable_pregnancy">Enable Pregnancy mode</string>
+    <string name="OApsAIMI_Enable_honeymoon">Enable child mode for a response better suited to lower insulin needs compared to those of an adult</string>
+    <string name="oaps_aimi_HIGHBG_interval_summary">High BG SMB Interval</string>
+    <string name="oaps_aimi_HIGHBG_interval_title">High BG SMB Interval</string>
+    <string name="openapsaimi_highBG_maxsmb_summary">Max SMB value when bg is greater than 120.</string>
+    <string name="openapsaimi_highBG_maxsmb_title">Max SMB High BG</string>
+    <string name="OApsAIMI_Enable_night_title">Enable Night mode (smb/2)</string>
+    <string name="prebolus_lunch_mode_summary">Prebolus 1/2 lunch mode</string>
+    <string name="prebolus2_lunch_mode_summary">Prebolus 2/2 lunch mode</string>
+    <string name="prebolus_lunch_mode_title">Mode Lunch Prebolus 1/2</string>
+    <string name="prebolus2_lunch_mode_title">Mode Lunch Prebolus 2/2</string>
+    <string name="oaps_aimi_LunchAdjFact_summary">Lunch mode Dynisf Factor</string>
+    <string name="oaps_aimi_LunchAdjFact_title">Lunch Mode Dynisf</string>
+    <string name="prebolus_Dinner_mode_summary">Dinner mode prebolus 1/2</string>
+    <string name="prebolus2_Dinner_mode_summary">Dinner mode prebolus 2/2</string>
+    <string name="prebolus_Dinner_mode_title">Dinner mode prebolus 1/2</string>
+    <string name="prebolus2_Dinner_mode_title">Dinner mode prebolus 2/2</string>
+    <string name="OApsAIMI_LunchFactor_summary">Lunch mode reactivity is % of insulin required for one smb.</string>
+    <string name="OApsAIMI_lunchFactor_title">Lunch mode reactivity</string>
+    <string name="oaps_aimi_lunch_interval_summary">Lunch mode interval SMB</string>
+    <string name="oaps_aimi_lunch_interval_title">Lunch mode interval SMB</string>
+    <string name="oaps_aimi_DinnerAdjFact_summary">Dinner mode Dynisf factor</string>
+    <string name="oaps_aimi_DinnerAdjFact_title">Dinner mode Dynisf</string>
+    <string name="OApsAIMI_DinnerFactor_summary">Dinner mode reactivity % of insulin required for one SMB.</string>
+    <string name="OApsAIMI_DinnerFactor_title">Dinner mode reactitivy</string>
+    <string name="oaps_aimi_Dinner_interval_summary">Dinner mode Interval</string>
+    <string name="oaps_aimi_Dinner_interval_title">Dinner mode Interval</string>
+    <string name="oaps_aimi_enableMlLearningRate_title">Enable Learning Rate variable for better adjustment</string>
+    <string name="oaps_aimi_enableMlFCL_title">Full Closed Loop</string>
+    <string name="oaps_aimi_FCLAdjFact_title">Dynisf Full Closed Loop</string>
+    <string name="oaps_aimi_FCLAdjFact_summary">Dynisf Full Closed Loop by automatic detection.</string>
+    <string name="OApsAIMI_FCLFactor_title">FCL Reactivity</string>
+    <string name="OApsAIMI_FCLFactor_summary">% insulin required for SMB in the FCL mode</string>
+    <string name="oaps_aimi_FCL_interval_summary">FCL SMB interval</string>
+    <string name="oaps_aimi_FCL_interval_title">FCL SMB interval</string>
+    <string name="prebolus_BF_mode_summary">Prebolus 1/2 breakfast mode</string>
+    <string name="prebolus_BF_mode_title">Mode breakfast prebolus 1/2</string>
+    <string name="prebolus2_BF_mode_summary">Prebolus 2/2 breakfast mode</string>
+    <string name="prebolus2_BF_mode_title">Mode breakfast Prebolus 2/2</string>
+    <string name="oaps_aimi_BFdjFact_summary">DynISF mode breakfast</string>
+    <string name="oaps_aimi_BFAdjFact_title">DynISF mode breakfast</string>
+    <string name="OApsAIMI_BFFactor_summary">% insulin required for one smb</string>
+    <string name="OApsAIMI_BFFactor_title">Reactivity mode breakfast</string>
+    <string name="oaps_aimi_BF_interval_summary">Interval between 2 SMB mode breakfast</string>
+    <string name="oaps_aimi_BF_interval_title">SMB Interval Mode Breakfast</string>
+
+
+    <!--    autoISF -->
+    <string name="half_basal_exercise_target_title">Half basal exercise target</string>
+    <string name="half_basal_exercise_target_summary">Set to a number, e.g. 160, which means when temp target is 160 mg/dL and High temptarget raises sensitivity=true, run 50%% basal at this level (120 = 75%%; 140 = 60%%).</string>
+    <string name="autoISF_settings_title">AutoISF settings</string>
+    <string name="autoISF_settings_summary">AutoISF allows to adapt the insulin sensitivity factor (ISF) in various scenarios of glucose behaviour\n\nIt can also adapt SMB delivery settings</string>
+    <string name="smb_delivery_settings_title">SMB delivery settings</string>
+    <string name="smb_delivery_settings_summary">Set of options to increase the actual SMB size which can be delivered in situations where ISF was strengthened, i.e. fairly low ISF figure.\n\nUSE WITH CAUTION</string>
+    <string name="openapsama_enable_autoISF">Enable ISF adaptation by glucose behaviour</string>
+    <string name="openapsama_autoISF_max_summary">Similar to autosens_max this defines how strong ISF can become.\n\nThe default value 1.0 effectively shuts off this effect.\n\nWARNING: Be extremely careful when using values above 2.5</string>
+    <string name="openapsama_autoISF_min_summary">Similar to autosens_min this defines how weak ISF can become.\n\nThe default value 1.0 effectively shuts off this effect.</string>
+    <string name="openapsama_dura_ISF_weight_summary">This is the weight applied during longer lasting, elevated glucose plateaus and which strengthens ISF thereby potentially increasing insulin delivery.\n\nThe default value 0.0 effectively shuts off this effect.</string>
+    <string name="openapsama_lower_ISFrange_weight_summary">This is the weight applied while glucose is below target and which weakens ISF thereby potentially reducing insulin delivery.\n\nThe default value 0.0 effectively shuts off this effect.</string>
+    <string name="openapsama_higher_ISFrange_weight_summary">This is the weight applied while glucose is above target and which strengthens ISF thereby potentially increasing insulin delivery.\n\nThe default value 0.0 effectively shuts off this effect.</string>
+    <string name="openapsama_pp_ISF_weight_summary">This is the weight applied while glucose is rising and which strengthens ISF thereby potentially increasing insulin delivery.\n\nThe default value 0.0 effectively shuts off this effect.</string>
+    <string name="openapsama_bgAccel_ISF_weight_summary">This is the weight applied while glucose accelerates and which strengthens ISF thereby potentially increasing insulin delivery.\n\nThe default value 0.0 effectively shuts off this effect.</string>
+    <string name="openapsama_bgBrake_ISF_weight_summary">This is the weight applied while glucose decelerates and which weakens ISF thereby potentially reducing insulin delivery.\n\nThe default value 0.0 effectively shuts off this effect.</string>
+    <string name="openapsama_autoISF_max">Max autoISF ratio\n(autoISF_max)</string>
+    <string name="openapsama_autoISF_min">Min autoISF ratio\n(autoISF_min)</string>
+    <string name="openapsama_lower_ISFrange_weight">lower ISF-range weight\n(lower_ISFrange_weight)</string>
+    <string name="openapsama_higher_ISFrange_weight">higher ISF-range weight\n(higher_ISFrange_weight)</string>
+    <string name="openapsama_pp_ISF_weight">postprandial ISF weight\n(pp_ISF_weight)</string>
+    <string name="openapsama_bgAccel_ISF_weight">Weight while BG accelerates\n(bgAccel_ISF_weight)</string>
+    <string name="openapsama_bgBrake_ISF_weight">Weight while BG decelerates\n(bgBrake_ISF_weight)</string>
+    <string name="openapsama_dura_ISF_weight">dura_ISF weight\n(dura_ISF_weight)</string>
+    <string name="openapsama_smb_delivery_ratio">fixed SMB delivery ratio\n(smb_delivery_ratio)</string>
+    <string name="openapsama_smb_delivery_ratio_min">variable SMB delivery ratio, lower end\n(smb_delivery_ratio_min)</string>
+    <string name="openapsama_smb_delivery_ratio_max">variable SMB delivery ratio, upper end\n(smb_delivery_ratio_max)</string>
+    <string name="openapsama_smb_delivery_ratio_bg_range">variable SMB delivery ratio, mapped glucose range\n(smb_delivery_ratio_bg_range)</string>
+    <string name="openapsama_smb_max_range_extension">SMB/UAM max range extension\n(smb_max_range_extension)</string>
+    <string name="openapsama_smb_delivery_ratio_summary">Default value: 0.5 This is another key OpenAPS safety cap, and specifies what share of the total insulin required can be delivered as SMB. This is to prevent people from getting into dangerous territory by setting SMB requests from the caregivers phone at the same time. Increase this experimental value slowly and with caution.</string>
+    <string name="openapsama_smb_delivery_ratio_min_summary">Default value: 0.5 This is the lower end of a linearly increasing ratio rather than the fix value above.</string>
+    <string name="openapsama_smb_delivery_ratio_max_summary">Default value: 0.5 This is the upper end of a linearly increasing ratio rather than the fix value above.</string>
+    <string name="openapsama_smb_delivery_ratio_bg_range_summary">Default value: 0. The linearly increasing SMB delivery ratio is mapped to the glucose range [target_bg, target_bg+bg_range].\nAt target_bg the SMB ratio is smb_delivery_ratio_min, at target_bg+bg_range it is smb_delivery_ratio_max\nWith 0 the linearly increasing SMB ratio is disabled and the fixed smb_delivery_ratio is used.</string>
+    <string name="openapsama_smb_max_range_extension_summary">Default value: 1 This is another key OpenAPS safety cap, and specifies by what factor you can exceed the regular 120 maxSMB/maxUAM minutes. Increase this experimental value slowly and with caution.</string>
+    <string name="enableSMB_EvenOn_OddOff_always">Enable alternative activation of SMB depending on active target being even number</string>
+    <string name="enableSMB_EvenOn_OddOff_always_summary">\nenabled ...\nif active target(mmol/L) has even decimal\nor active target(mg/dL) is even number\n\ndisabled otherwise</string>
+    <string name="oaps_aimi_enableDeleteLine_title">Enable the possibility to delete one day in the ML Training</string>
+    <string name="oaps_aimi_logsize_summary">log colon size</string>
+    <string name="oaps_aimi_logsize_title">Define the log size for the colon in loop page</string>
+    <string name="openapsama_iob_threshold_percent_summary" formatted="false">Percentage of maxIOB above which SMBs are disabled.\nDefault value: 100%\nWith 100% this feature is effectively disabled.</string>
+    <string name="openapsama_iob_threshold_percent">maxIOB threshold percent for SMB\n(iob_threshold_percent)</string>
+    <string name="Enable_xdripOM_title">Enable xdrip bg each one minute</string>
+    <string name="oaps_aimi_enableMlautoDrive_title">Experimental : Auto Drive</string>
+
+    <!--    Eigen -->
+    <string name="MinBoostPerc_summary">Het minumum overall (product van alle percentages) insuline percentage zal boven deze waarde blijven</string>
+    <string name="MinBoostPerc_title">Minimum overall insuline percentage</string>
+    <string name="MaxBoostPerc_summary">Het maximum overall (product van alle percentages) insuline percentage zal beneden deze waarde blijven</string>
+    <string name="MaxBoostPerc_title">Maximum overall insuline percentage</string>
+
+    <string name="bolus_boost_sterkte_summary">Percentage correctie t.o.v. het ingegeven boost-percentage</string>
+    <string name="bolus_boost_sterkte_title">+/- percentage tbv sterkte</string>
+    <string name="bolus_boost_deltaT_summary">Tijd correctie + of - in minuten waarop het ingestelde percentage wordt bereikt</string>
+    <string name="bolus_boost_deltaT_title">∆T t.o.v. middelpunt</string>
+
+
+    <string name="bg_OchtendPerc_summary">Kracht van de dynamische ISF op basis van de Bg gedurende de ochtend</string>
+    <string name="bg_OchtendPerc_title">Ochtend. Dynamische Bg_isf sterkte</string>
+    <string name="bg_MiddagPerc_summary">Kracht van de dynamische ISF op basis van de Bg gedurende de middag</string>
+    <string name="bg_MiddagPerc_title">Middag. Dynamische Bg_isf sterkte</string>
+    <string name="bg_AvondPerc_summary">Kracht van de dynamische ISF op basis van de Bg gedurende de avond</string>
+    <string name="bg_AvondPerc_title">Avond. Dynamische Bg_isf sterkte</string>
+    <string name="bg_NachtPerc_summary">Kracht van de dynamische ISF op basis van de Bg gedurende de nacht</string>
+    <string name="bg_NachtPerc_title">Nacht. Dynamische Bg_isf sterkte</string>
+    <string name="persistent_Dagdrempel_summary">Drempel bg-waarde waarboven de extra correctie overdag wordt toegepast</string>
+    <string name="persistent_Dagdrempel_title">Overdag drempel persistent hoog</string>
+    <string name="persistent_Nachtdrempel_summary">Drempel bg-waarde waarboven de extra correctie snachts wordt toegepast</string>
+    <string name="persistent_Nachtdrempel_title">Nacht drempel persistent hoog</string>
+    <string name="persistent_grens_summary">Range in mmol waarbinnen de delta moet blijven voor de persistent hoge bg correctie</string>
+    <string name="persistent_grens_title">Range persistent hoog</string>
+    <string name="hypoPerc_summary">Het Bg Percentage wordt gecorrigeerd met dit percentage als de UAM stijging het gevolg is van een hypo correctie. (50 % is een goede startwaarde)</string>
+    <string name="hypoPerc_title">Hypo correctie insuline percentage</string>
+    <string name="BgIOBPerc_summary">Het Bg Percentage wordt verhoogd bij hoge Bg en Lage IOB.</string>
+    <string name="BgIOBPerc_title">Bg-IOB verhouding correctie insuline percentage</string>
+
+
+    <string name="word_handleiding" translatable="false">https://docs.google.com/document/d/10eMqlDauQ3wXd2hGQZeS8TalywemnLy2/edit</string>
+    <string name="Info_doc1">!! Klik om te openen !!\n Inleiding \n Dit document geeft de basisuitleg over het AUTO-SMB algortime</string>
+    <string name="Info_doc2">!! Klik om te openen !!\n Document2 info</string>
+    <string name="Info_doc3">!! Klik om te openen !!\n Document3 info</string>
+    <string name="www_doc1" translatable="false">https://docs.google.com/document/d/10eMqlDauQ3wXd2hGQZeS8TalywemnLy2/edit</string>
+    <string name="www_doc2" translatable="false">https://docs.google.com/document/d/11iVBrEsWRzGgb2BLANFEtZkZVln3K6tE/edit</string>
+    <string name="www_doc3" translatable="false">https://docs.google.com/document/d/11jK2-0Cu5xAN38g4NLKHnWjwySfCbkKD/edit</string>
+
+
+
+    <string name="Info_Bg">1. Dynamische Bg: \n ● correctie sterkte instelbaar tussen 75% en 125%. \n 2. Persistent hoge Bg: \n ● Drempelwaarde waaronder nooit een persitent hoge Bg wordt gedetecteerd \n ● Range (+/- in mmol/l) waarbinnen de Bg als stabiel wordt beschouwd.\n 3. Hypo correctie uitgevoerd als bg onder target komt \n\n !! Klik om te openen !!\n</string>
+    <string name="a_bg_doc" translatable="false">https://docs.google.com/document/d/12nn-5wnnbqTLOE00fwe8mANcpMUW8T4H/edit</string>
+    <string name="Info_activiteit">● Activiteits instellingen gebasserd op stappen!:\n 1. Stappenteller aan/uit schakelen.\n 2. Insuline percentage bij gedetecteerde activiteit.\n \n !! Klik om te openen !!\n</string>
+    <string name="b_stappen_doc" translatable="false">https://docs.google.com/document/d/12gcpIZ9B-TC0vAnB9XH_55IpHAuePFSV/edit</string>
+    <string name="Info_UAMBoost">● UAM Boost instellingen!:\n 1. ∆15 groter dan drempelwaarde geeft boostpercentage op de insuline.\n 2. Het basis boost percentage wordt toegepast en gecorrigeerd voor de Bg en de ∆15.\n \n !! Klik om te openen !!\n</string>
+    <string name="c_UAMBoost_doc" translatable="false">https://docs.google.com/document/d/12pNHAKEyE1A4J356T2x8TVJlPlbqsTuR/edit</string>
+    <string name="Info_SMBversterker">● SMB versterker instellingen!:\n 1. Percentage van de versterking (100% - 250%).\n 2. Wachttijd voordat de versterker weer inwerking treedt na een vorige activering.\n \n !! Klik om te openen !!\n</string>
+    <string name="d_SMBversterker_doc" translatable="false">https://docs.google.com/document/d/13C-p1m3HoyEUYEsGxN8IoX7kAmVPPMfP/edit</string>
+    <string name="Info_basaal">● Basaal instellingen!:\n 1. Percentage basaal tov TDD.\n 2. Aanvullende gevoeligheids detectie op basis van tijdstip op de dag.\n \n !! Klik om te openen !!\n</string>
+    <string name="e_basaal_doc" translatable="false">https://docs.google.com/document/d/131_ybmLgJYdDWpxgGjtA7ztaPLEZ_feT/edit</string>
+    <string name="Info_resistentie">● Extra resistentie instellingen!:\n 1. Aanvullende gevoeligheids detectie op basis van tijdstip op de dag.\n \n !! Klik om te openen !!\n</string>
+    <string name="e_resistentie_doc" translatable="false">https://docs.google.com/document/d/131_ybmLgJYdDWpxgGjtA7ztaPLEZ_feT/edit</string>
+    <string name="Info_bolus_boost">Info tbv bolus-boost aanpassingen!\n 1. Het ingestelde Boost-% wordt dynamisch t.o.v. loopttijd gecorrigeerd tussen +/- de ingestelde sterkte in procenten.\n 2. Looptijd correctie (-15 tot +15 minuten), waar percentage gelijk aan ingestelde %.\n \n !! Klik om te openen !!\n</string>
+    <string name="f_bolus_boost_doc" translatable="false">https://docs.google.com/document/d/130Bx3629sTeI5E5-aaTaiAdAuJJID1xg/edit</string>
+    <string name="Info_note_boost">Info tbv Automatisering Note-boost aanpassingen!\n 1. Via automatisering en gebruikers actie wordt een mode gekozen. \n 2. Laag, Middel, Hoog koolhydraat of Stop. Het ingestelde Boost-% wordt tijdens de loopttijd toegepast.\n 3. Tevens wordt aan de start een extra SMB gegeven.\n \n !! Klik om te openen !!\n</string>
+    <string name="g_note_boost_doc" translatable="false">https://docs.google.com/document/d/13lPl9WChpcA5mbfXRdtsC0fT18HHaNL1/edit</string>
+    <string name="Info_algemeen">Algemene instellingen!\n 1. Tijdstip warop de dagstart en eindigt. \n 2. .......\n 3. ..........\n \n !! Klik om te openen !!\n</string>
+    <string name="h_algemeen_doc" translatable="false">https://docs.google.com/document/d/13lPl9WChpcA5mbfXRdtsC0fT18HHaNL1/edit</string>
+
+    <string name="new_UAMBoostPerc_summary">Het basis UAM Percentage wordt gecorrigeerd t.o.v. de ∆15 en de Bg. Een goede start is rond de 200%</string>
+    <string name="new_UAMBoostPerc_title">basis UAM insuline boost percentage</string>
+
+    <string name="new_UAMBoostDrempel_summary">Instelbaar tussen 0,8 en 1,2 mmol/l. Bij lagere drempel zal de boost eerder worden ingeschakeld</string>
+    <string name="new_UAMBoostDrempel_title">∆15 drempel</string>
+
+    <string name="ISF_Perc_summary">Kracht van de dynamische ISF. Groter dan 100% geeft meer insuline en dus lager ISF.</string>
+    <string name="ISF_Perc_title">Dynamisch ISF sterkte (%)</string>
+    <string name="standaard_TDD_summary">Het gemiddelde dagelijkse aantal TDD eenheden. Wordt gebruikt als realtime data ontbreekt (10 tot 75).</string>
+    <string name="standaard_TDD_title">dagelijks gemiddeld TDD</string>
+    <string name="basaal_TDDPerc_summary">Het deel van de TDD wat wordt gebruikt als basaal (25% tot 75%).</string>
+    <string name="basaal_TDDPerc_title">Basaal perc tov TDD (%)</string>
+    <string name="TDD_weegfactor_summary">Verhouding 6-12-24 uurs TDD bij gem Basaal berekening. Factor 1: 3*6h 2*12h 1*24h. Factor 2: 2*6h 2*12h 2*24h. Factor 3: 1*6h 2*12h 3*24h.</string>
+    <string name="TDD_weegfactor_title">Weegfactor TDD 6-12-24 uur</string>
+    <string name="min_basaal_summary">Minimum waarde die het berekende dynamische basaal kan aannemen. (0,1 tot 0,5).</string>
+    <string name="min_basaal_title">Minimum dynamisch basaal</string>
+    <string name="max_basaal_summary">Maximum waarde die het berekende dynamische basaal kan aannemen. (0,5 tot 1,5).</string>
+    <string name="max_basaal_title">Maximum dynamisch basaal</string>
+    <string name="Titel_resistentie">Gebruik resistentie functie</string>
+    <string name="min_resistentiePerc_summary">De minimum waarde van de resistentie (10% - 100%).</string>
+    <string name="min_resistentiePerc_title">Minimum resistentie percentage (%)</string>
+    <string name="max_resistentiePerc_summary">De maximum waarde van de resistentie (100% - 200%).</string>
+    <string name="max_resistentiePerc_title">Maximum resistentie percentage (%)</string>
+    <string name="dag_resistentiePerc_summary">Het effect van de resistentie sterkte kan worden gecorrigeerd tussen 10% en 200%.</string>
+    <string name="dag_resistentiePerc_title">Resistentie sterkte overdag (%)</string>
+    <string name="nacht_resistentiePerc_summary">Het effect van de resistentie sterkte kan worden gecorrigeerd tussen 10% en 200%.</string>
+    <string name="nacht_resistentiePerc_title">Resistentie sterkte snachts (%)</string>
+    <string name="dag_resistentie_target_summary">Bg target overdag ten opzichte waarvan de afwijking tbv de resistentie wordt berekend</string>
+    <string name="dag_resistentie_target_title">Resistentie target overdag</string>
+    <string name="nacht_resistentie_target_summary">Bg target snachts ten opzichte waarvan de afwijking tbv de resistentie wordt berekend</string>
+    <string name="nacht_resistentie_target_title">Resistentie target snachts</string>
+    <string name="Dagen_resistentie_summary">Het aantal dagen dat de resistentie correctie terug kijkt om in de berekening (min 1, max 7).</string>
+    <string name="Dagen_resistentie_title">Aantal dagen</string>
+    <string name="Uren_resistentie_summary">Het aantal uren per dag waarover de bg wordt gemiddeld (min 1, max 5).</string>
+    <string name="Uren_resistentie_title">Aantal uur</string>
+    <string name="res_basalPerc_summary">Gedeelte van de resistentie correctie wat gebruikt wordt voor de basaal aanpassing (0% tot 100%).</string>
+    <string name="res_basalPerc_title">Basaal resistentie correctie (%)</string>
+
+
+    <string name="SMB_versterkerPerc_summary">Het percentage waarmee de SMB wordt versterkt als aan de voorwaarden is voldaan.</string>
+    <string name="SMB_versterkerPerc_title">SMB versterkings percentage (%)</string>
+    <string name="SMB_versterkerWachttijd_summary">Wachttijd na een activering voordat deze opnieuw wordt geactiveerd kan worden.</string>
+    <string name="SMB_versterkerWachttijd_title">Wachttijd tussen 2 activeringen</string>
+
+    <string name="stappenAanUit_summary">Bij activering boven de drempel wordt de insuline afgifte met het ingestelde percentage gecorrigeerd</string>
+    <string name="stappenAanUit_title">Stappen insuline-correctie</string>
+    <string name="stap_activiteteitPerc_summary">Insuline percentage bij overschrijding van de stappendrempel</string>
+    <string name="stap_activiteteitPerc_title">Insuline percentage</string>
+    <string name="stap_5minuten_summary">Stappen benodigd in 5 minuten om te activeren. De 30 en 60 minuten drempel wordt berekend t.o.v. deze waarde.</string>
+    <string name="stap_5minuten_title">Drempelwaarde 5 minuten</string>
+    <string name="stap_retentie_summary">Maximum aantal keren dat de stappen acitvatie na-ijlt.</string>
+    <string name="stap_retentie_title">Max aantal retenties</string>
+
+
+    <string name="WeekendDagen_summary">Dagen waarop het weekend algoritme actief is (opmaak vr,za,zo,ma,di,wo,do)</string>
+    <string name="WeekendDagen_title">Weekend dagen (bv vr,za,zo)</string>
+    <string name="OchtendStart_summary">Tijdstip waarop het algoritme overschakelt naar de ochtend instellingen (opmaak hh:mm)</string>
+    <string name="OchtendStart_title">Ochtendstart tijdstip door de week (bv 06:30)</string>
+    <string name="OchtendStartWeekend_summary">Tijdstip waarop het algoritme overschakelt naar de ochtend instellingen (opmaak hh:mm)</string>
+    <string name="OchtendStartWeekend_title">Ochtendstart tijdstip Weekend (bv 08:00)</string>
+    <string name="MiddagStart_summary">Tijdstip waarop het algoritme overschakelt naar de middag instellingen (opmaak hh:mm)</string>
+    <string name="MiddagStart_title">Middagstart tijdstip (bv 11:45)</string>
+    <string name="AvondStart_summary">Tijdstip waarop het algoritme overschakelt naar de avond instellingen (opmaak hh:mm)</string>
+    <string name="AvondStart_title">Avondstart tijdstip (bv 18:30)</string>
+    <string name="NachtStart_summary">Tijdstip waarop het algoritme overschakelt naar de nacht instellingen (opmaak hh:mm)</string>
+    <string name="NachtStart_title">Nachtstart tijdstip (bv 23:30)</string>
+    <string name="TirTitr_summary">TIR (bg 4-10) of TITR (Bg 4-8) op hoofdscherm</string>
+    <string name="TirTitr_title">TIR of TITR op hoofdscherm</string>
+
+    <string name="Info_origineel">● Originele instellingen van het openApsSMB algoritme:\n 1. ........\n 2. ..........</string>
+    <string name="DynSMB">DYNAMIC</string>
+    <string name="description_DynSmb">Aangepast OpenAPS SMB voor Dynamisch insuline afgifte</string>
+    <string name="DynBasaal">Dynamic</string>
+    <string name="description_DynBasaal">Aangepast OpenAPS voor dynamisch basaal en ISF</string>
+
+</resources>
