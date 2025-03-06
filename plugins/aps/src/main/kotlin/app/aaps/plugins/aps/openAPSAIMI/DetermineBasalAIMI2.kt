@@ -983,7 +983,7 @@ class DetermineBasalaimiSMB2 @Inject constructor(
         eveningFactor: Float
     ): Triple<Float, Float, Float> {
         val honeymoon = preferences.get(BooleanKey.OApsAIMIhoneymoon)
-        val hypoAdjustment = if (bg < 120 || (iob > 3 * maxSMB)) 0.8f else 1.0f
+        val hypoAdjustment = if (bg < 120 || (iob > 3 * maxSMB)) 0.3f else 0.9f
         // Récupération des deltas récents et calcul du delta prédit
         val recentDeltas = getRecentDeltas()
         val predicted = predictedDelta(recentDeltas)
@@ -996,21 +996,21 @@ class DetermineBasalaimiSMB2 @Inject constructor(
 
         // Interpolation de base pour factorAdjustment selon la glycémie (bg)
         var factorAdjustment = when {
-            bg < 130 -> interpolateFactor(bg.toFloat(), 70f, 130f, 0.1f, 0.3f)
-            else -> interpolateFactor(bg.toFloat(), 130f, 250f, 0.65f, 1.8f)
+            bg < 120 -> interpolateFactor(bg.toFloat(), 70f, 120f, 0.1f, 0.3f)
+            else -> interpolateFactor(bg.toFloat(), 120f, 280f, 0.75f, 2.5f)
         }
         if (honeymoon) factorAdjustment = when {
-            bg < 180 -> interpolateFactor(bg.toFloat(), 70f, 160f, 0.2f, 0.4f)
+            bg < 160 -> interpolateFactor(bg.toFloat(), 70f, 160f, 0.2f, 0.4f)
             else -> interpolateFactor(bg.toFloat(), 160f, 250f, 0.4f, 0.65f)
         }
         var bgAdjustment = 1.0f + (deltaAdjustment - 1) * factorAdjustment
         bgAdjustment *= 1.2f
 
         val dynamicCorrection = when {
-            combinedDelta > 8f  -> 1.8f   // Très forte montée, on augmente très agressivement
-            combinedDelta > 6f  -> 1.6f   // Montée forte
-            combinedDelta > 4f  -> 1.5f   // Montée modérée à forte
-            combinedDelta > 2f  -> 1.3f   // Montée légère
+            combinedDelta > 11f  -> 2.5f   // Très forte montée, on augmente très agressivement
+            combinedDelta > 8f  -> 2.0f   // Montée forte
+            combinedDelta > 5f  -> 1.5f   // Montée modérée à forte
+            combinedDelta > 2f  -> 0.8f   // Montée légère
             combinedDelta in -2f..2f -> 1.0f  // Stable
             combinedDelta < -2f && combinedDelta >= -4f -> 0.8f  // Baisse légère
             combinedDelta < -4f && combinedDelta >= -6f -> 0.6f  // Baisse modérée
@@ -1023,8 +1023,8 @@ class DetermineBasalaimiSMB2 @Inject constructor(
         // // Interpolation pour scalingFactor basée sur la cible (targetBg)
         // val scalingFactor = interpolateFactor(bg.toFloat(), targetBg, 110f, 09f, 0.5f).coerceAtLeast(0.1f)
 
-        val maxIncreaseFactor = 1.7f
-        val maxDecreaseFactor = 0.5f
+        val maxIncreaseFactor = 12.5f
+        val maxDecreaseFactor = 0.2f
 
         val adjustFactor = { factor: Float ->
             val adjustedFactor = factor * bgAdjustment * hypoAdjustment //* scalingFactor
@@ -1430,7 +1430,7 @@ class DetermineBasalaimiSMB2 @Inject constructor(
 
 
     private fun interpolatebasal(bg: Double): Double {
-        val clampedBG = bg.coerceIn(40.0, 300.0)
+        val clampedBG = bg.coerceIn(80.0, 300.0)
         return when {
             clampedBG < 80 -> 0.5
             clampedBG < 120 -> {
@@ -2340,7 +2340,7 @@ class DetermineBasalaimiSMB2 @Inject constructor(
             rT.reason.append("ML Decision data training","ML decision has no enough data to refine the decision")
         }
 
-        var smbToGive = if (bg > 160  && delta > 8 && predictedSMB == 0.0f) modelcal else predictedSMB
+        var smbToGive = if (bg > 120  && delta > 8 && predictedSMB == 0.0f) modelcal else predictedSMB
         smbToGive = if (honeymoon && bg < 170) smbToGive * 0.8f else smbToGive
 
         val morningfactor: Double = preferences.get(DoubleKey.OApsAIMIMorningFactor) / 100.0
@@ -2663,7 +2663,7 @@ class DetermineBasalaimiSMB2 @Inject constructor(
             appendLine("╔${"═".repeat(screenWidth)}╗")
             appendLine(String.format("║ %-${screenWidth}s ║", "AAPS-MASTER-AIMI"))
             appendLine(String.format("║ %-${screenWidth}s ║", "OpenApsAIMI Settings"))
-            appendLine(String.format("║ %-${screenWidth}s ║", "01 Mars 2025"))
+            appendLine(String.format("║ %-${screenWidth}s ║", "06 Mars 2025"))
             appendLine("╚${"═".repeat(screenWidth)}╝")
             appendLine()
 
@@ -2861,21 +2861,21 @@ class DetermineBasalaimiSMB2 @Inject constructor(
                 bg < 80                                                                                                                  -> rate = 0.0
                 bg in 80.0..90.0 && slopeFromMaxDeviation <= 0 && iob > 0.1 && !sportTime                                                -> rate = 0.0
                 bg in 80.0..90.0 && slopeFromMinDeviation >= 0.3 && slopeFromMaxDeviation >= 0 &&
-                    delta in -1.0..2.0 && !sportTime && bgAcceleration.toFloat() > 0.0f                                                  -> rate = profile_current_basal * 0.2
+                    combinedDelta in -1.0..2.0 && !sportTime && bgAcceleration.toFloat() > 0.0f                                                  -> rate = profile_current_basal * 0.2
 
                 bg in 90.0..100.0 && slopeFromMinDeviation <= 0.3 && iob > 0.1 && !sportTime && bgAcceleration.toFloat() > 0.0f          -> rate = 0.0
-                bg in 90.0..100.0 && slopeFromMinDeviation >= 0.3 && delta in -1.0..2.0 && !sportTime && bgAcceleration.toFloat() > 0.0f -> rate = profile_current_basal * 0.5
+                bg in 90.0..100.0 && slopeFromMinDeviation >= 0.3 && combinedDelta in -1.0..2.0 && !sportTime && bgAcceleration.toFloat() > 0.0f -> rate = profile_current_basal * 0.5
             }
 
             // 🔺 Gestion des hausses lentes et rapides
-            if (bg > 120 && slopeFromMinDeviation in 0.4..20.0 && delta > 1 && shortAvgDelta >= 1 && !sportTime && bgAcceleration.toFloat() > 1.0f) {
-                rate = calculateBasalRate(finalBasalRate, profile_current_basal, delta.toDouble())
-            } else if (eventualBG > 110 && !sportTime && bg > 150 && delta in -2.0..15.0 && bgAcceleration.toFloat() > 0.0f) {
+            if (bg > 120 && slopeFromMinDeviation in 0.4..20.0 && combinedDelta > 1 && !sportTime && bgAcceleration.toFloat() > 1.0f) {
+                rate = calculateBasalRate(finalBasalRate, profile_current_basal, combinedDelta.toDouble())
+            } else if (eventualBG > 110 && !sportTime && bg > 150 && combinedDelta in -2.0..15.0 && bgAcceleration.toFloat() > 0.0f) {
                 rate = calculateBasalRate(finalBasalRate, profile_current_basal, basalAdjustmentFactor)
             }
 
             // 🔵 Gestion des horaires et activité
-            if ((timenow in 11..13 || timenow in 18..21) && iob < 0.8 && recentSteps5Minutes < 100 && delta > -1 && slopeFromMinDeviation > 0.3 && bgAcceleration.toFloat() > 0.0f) {
+            if ((timenow in 11..13 || timenow in 18..21) && iob < 0.8 && recentSteps5Minutes < 100 && combinedDelta > -1 && slopeFromMinDeviation > 0.3 && bgAcceleration.toFloat() > 0.0f) {
                 rate = profile_current_basal * 1.5
             } else if (timenow > sixAMHour && recentSteps5Minutes > 100) {
                 rate = 0.0
@@ -2912,9 +2912,9 @@ class DetermineBasalaimiSMB2 @Inject constructor(
                 when {
                     bg in 140.0..169.0 && delta > 0                                                                                             -> rate = profile_current_basal
                     bg > 170 && delta > 0                                                                                                       -> rate = calculateBasalRate(finalBasalRate, profile_current_basal, basalAdjustmentFactor)
-                    delta > 2 && bg in 90.0..119.0                                                                                              -> rate = profile_current_basal
-                    delta > 0 && bg > 110 && eventualBG > 120 && bg < 160                                                                       -> rate = profile_current_basal * basalAdjustmentFactor
-                    mealData.slopeFromMaxDeviation > 0 && mealData.slopeFromMinDeviation > 0 && bg > 110 && delta > 0                           -> rate = profile_current_basal * basalAdjustmentFactor
+                    combinedDelta > 2 && bg in 90.0..119.0                                                                                              -> rate = profile_current_basal
+                    combinedDelta > 0 && bg > 110 && eventualBG > 120 && bg < 160                                                                       -> rate = profile_current_basal * basalAdjustmentFactor
+                    mealData.slopeFromMaxDeviation > 0 && mealData.slopeFromMinDeviation > 0 && bg > 110 && combinedDelta > 0                           -> rate = profile_current_basal * basalAdjustmentFactor
                     mealData.slopeFromMaxDeviation in 0.0..0.2 && mealData.slopeFromMinDeviation in 0.0..0.5 && bg in 120.0..150.0 && delta > 0 -> rate = profile_current_basal * basalAdjustmentFactor
                     mealData.slopeFromMaxDeviation > 0 && mealData.slopeFromMinDeviation > 0 && bg in 100.0..120.0 && delta > 0                 -> rate = profile_current_basal * basalAdjustmentFactor
                 }

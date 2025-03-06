@@ -83,6 +83,16 @@ enum class DoubleKey(
     dag_resistentie_target("dag_resistentie_target", 5.2,4.0,8.0),
     nacht_resistentie_target("nacht_resistentie_target", 5.2,4.0,8.0),
 
+    Autopersistent_Dagdrempel("Autopersistent_Dagdrempel", 8.5,7.0,12.0),
+    Autopersistent_Nachtdrempel("Autopersistent_Nachtdrempel",7.0,6.0,10.0),
+    Autopersistent_grens("Autopersistent_grens",0.5,0.1, 1.0),
+    Autonew_uam_boostDrempel("Autonew_uam_boostDrempel", 0.9,0.8,1.2),
+    Autodag_resistentie_target("Autodag_resistentie_target", 5.2,4.0,8.0),
+    Autonacht_resistentie_target("Autonacht_resistentie_target", 5.2,4.0,8.0),
 
-
+   // auto basaal
+   AutoGem_TDD("AutoGem_TDD", 22.0,15.0,40.0),
+   AutoPiek_verschuiving("AutoPiek_verschuiving", 2.0,0.0,23.0),
+   AutoBasaal_min("AutoBasaal_min", 0.2,0.1,0.5),
+   AutoBasaal_max("AutoBasaal_max", 0.7,0.3,2.0),
 }

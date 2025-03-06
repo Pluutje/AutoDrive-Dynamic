@@ -47,6 +47,7 @@ interface APSResult {
     var oapsProfileAutoIsf: OapsProfileAutoIsf?
     var oapsProfileAimi: OapsProfileAimi?
     var oapsProfileDynamic: OapsProfileDynamic?
+    var oapsProfileDynamicAuto: OapsProfileDynamicAuto?
     var mealData: MealData?
 
     val iob: IobTotal? get() = iobData?.get(0)
@@ -64,7 +65,8 @@ interface APSResult {
         SMB,
         AIMI,
         AUTO_ISF,
-        DYNAMIC
+        DYNAMIC,
+        AUTO
     }
 }
 

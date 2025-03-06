@@ -1,4 +1,4 @@
-package app.aaps.plugins.aps.DYNAMIC
+package app.aaps.plugins.aps.DYN_AUTO
 
 import android.content.Context
 import android.content.Intent
@@ -20,7 +20,7 @@ import app.aaps.core.interfaces.aps.APS
 import app.aaps.core.interfaces.aps.APSResult
 import app.aaps.core.interfaces.aps.AutosensResult
 import app.aaps.core.interfaces.aps.CurrentTemp
-import app.aaps.core.interfaces.aps.OapsProfileDynamic
+import app.aaps.core.interfaces.aps.OapsProfileDynamicAuto
 import app.aaps.core.interfaces.bgQualityCheck.BgQualityCheck
 import app.aaps.core.interfaces.configuration.Config
 import app.aaps.core.interfaces.constraints.Constraint
@@ -81,7 +81,7 @@ import javax.inject.Singleton
 import kotlin.math.floor
 
 @Singleton
-open class OpenAPSDynSMBPlugin @Inject constructor(
+open class OpenAPSDynAUTOSMBPlugin @Inject constructor(
     private val injector: HasAndroidInjector,
     aapsLogger: AAPSLogger,
     private val rxBus: RxBus,
@@ -101,19 +101,19 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
     private val tddCalculator: TddCalculator,
     private val bgQualityCheck: BgQualityCheck,
     private val uiInteraction: UiInteraction,
-    private val determineBasalDynSMB: DetermineBasalDynSMB,
+    private val determineBasalDynAUTOSMB: DetermineBasalDynAUTOSMB,
     private val profiler: Profiler,
 ) : PluginBase(
     PluginDescription()
         .mainType(PluginType.APS)
         .fragmentClass(OpenAPSFragment::class.java.name)
         .pluginIcon(app.aaps.core.ui.R.drawable.ic_generic_icon)
-        .pluginName(R.string.DynSMB)
-        .shortName(app.aaps.core.ui.R.string.Dynsmb_shortname)
+        .pluginName(R.string.DynSMB_Auto)
+        .shortName(app.aaps.core.ui.R.string.Dynsmb_shortname_Auto)
         .preferencesId(PluginDescription.PREFERENCE_SCREEN)
         .preferencesVisibleInSimpleMode(false)
         .showInList(showInList = { config.APS })
-        .description(R.string.description_DynSmb)
+        .description(R.string.description_DynSmb_Auto)
         .setDefault(),
     aapsLogger, rh
 ), APS, PluginConstraints, Parcelable {
@@ -142,7 +142,7 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
     override fun getIsfMgdl(profile: Profile, caller: String): Double? {
         val start = dateUtil.now()
         val multiplier = (profile as ProfileSealed.EPS).value.originalPercentage / 100.0
-    //    val sensitivity = calculateVariableIsf(start, multiplier)
+
         val sensitivity = Pair("OFF", null)
         if (sensitivity.second == null)
             uiInteraction.addNotificationValidTo(
@@ -317,7 +317,7 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
         val iobArray = iobCobCalculator.calculateIobArrayForSMB(autosensResult, SMBDefaults.exercise_mode, SMBDefaults.half_basal_exercise_target, isTempTarget)
         val mealData = iobCobCalculator.getMealDataWithWaitingForCalculationFinish()
 
-        val oapsProfile = OapsProfileDynamic(
+        val oapsProfile = OapsProfileDynamicAuto(
 
             max_iob = constraintsChecker.getMaxIOBAllowed().also { inputConstraints.copyReasons(it) }.value(),
             max_daily_basal = profile.getMaxDailyBasal(),
@@ -351,48 +351,53 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
             autosens_max = preferences.get(DoubleKey.AutosensMax),
             out_units = if (profileFunction.getUnits() == GlucoseUnit.MMOL) "mmol/L" else "mg/dl",
 
-            BolusBoostSterkte = preferences.get(IntKey.bolus_boost_sterkte),
-            BolusBoostDeltaT = preferences.get(IntKey.bolus_boost_deltaT),
-            PersistentDagDrempel = preferences.get(DoubleKey.persistent_Dagdrempel),
-            PersistentNachtDrempel = preferences.get(DoubleKey.persistent_Nachtdrempel),
-            PersistentGrens = preferences.get(DoubleKey.persistent_grens),
-            bg_PercOchtend = preferences.get(IntKey.bg_PercOchtend),
-            bg_PercMiddag = preferences.get(IntKey.bg_PercMiddag),
-            bg_PercAvond = preferences.get(IntKey.bg_PercAvond),
-            bg_PercNacht = preferences.get(IntKey.bg_PercNacht),
-            BoostPerc = preferences.get(IntKey.BoostPerc),
-            minBoostPerc = preferences.get(IntKey.minBoostPerc),
-            maxBoostPerc = preferences.get(IntKey.maxBoostPerc),
-            Stappen = preferences.get(BooleanKey.stappenAanUit),
-            newuamboostDrempel = preferences.get(DoubleKey.new_uam_boostDrempel),
-            newuamboostPerc = preferences.get(IntKey.new_uam_boostPerc),
-            hypoPerc = preferences.get(IntKey.hypoPerc),
-            BgIOBPerc = preferences.get(IntKey.BgIOBPerc),
+            AutoBolusBoostSterkte = preferences.get(IntKey.Autobolus_boost_sterkte),
+            AutoBolusBoostDeltaT = preferences.get(IntKey.Autobolus_boost_deltaT),
+            AutoPersistentDagDrempel = preferences.get(DoubleKey.Autopersistent_Dagdrempel),
+            AutoPersistentNachtDrempel = preferences.get(DoubleKey.Autopersistent_Nachtdrempel),
+            AutoPersistentGrens = preferences.get(DoubleKey.Autopersistent_grens),
+            Autobg_PercOchtend = preferences.get(IntKey.Autobg_PercOchtend),
+            Autobg_PercMiddag = preferences.get(IntKey.Autobg_PercMiddag),
+            Autobg_PercAvond = preferences.get(IntKey.Autobg_PercAvond),
+            Autobg_PercNacht = preferences.get(IntKey.Autobg_PercNacht),
+            AutoBoostPerc = preferences.get(IntKey.AutoBoostPerc),
+            AutominBoostPerc = preferences.get(IntKey.AutominBoostPerc),
+            AutomaxBoostPerc = preferences.get(IntKey.AutomaxBoostPerc),
+            AutoStappen = preferences.get(BooleanKey.AutostappenAanUit),
+            AutonewuamboostDrempel = preferences.get(DoubleKey.Autonew_uam_boostDrempel),
+            AutonewuamboostPerc = preferences.get(IntKey.Autonew_uam_boostPerc),
+            AutohypoPerc = preferences.get(IntKey.AutohypoPerc),
+            AutoBgIOBPerc = preferences.get(IntKey.AutoBgIOBPerc),
 
     //        GebruikAutoSens = preferences.get(BooleanKey.GebruikAutoSense),
-            resistentie = preferences.get(BooleanKey.Resistentie),
-            minResistentiePerc = preferences.get(IntKey.min_resistentiePerc),
-            maxResistentiePerc = preferences.get(IntKey.max_resistentiePerc),
-            dagResistentiePerc = preferences.get(IntKey.dag_resistentiePerc),
-            dagResistentieTarget = preferences.get(DoubleKey.dag_resistentie_target),
-            nachtResistentiePerc = preferences.get(IntKey.nacht_resistentiePerc),
-            nachtResistentieTarget = preferences.get(DoubleKey.nacht_resistentie_target),
-            ResistentieDagen = preferences.get(IntKey.Dagen_resistentie),
-            ResistentieUren = preferences.get(IntKey.Uren_resistentie),
-            resbasalPerc = preferences.get(IntKey.res_basalPerc),
-            SMBversterkerPerc = preferences.get(IntKey.SMB_versterkerPerc),
-            SMBversterkerWachttijd = preferences.get(IntKey.SMB_versterkerWachttijd),
-            stapactiviteteitPerc = preferences.get(IntKey.stap_activiteteitPerc),
-            stap5minuten = preferences.get(IntKey.stap_5minuten),
-            stapretentie = preferences.get(IntKey.stap_retentie),
+            Autoresistentie = preferences.get(BooleanKey.AutoResistentie),
+            AutominResistentiePerc = preferences.get(IntKey.Automin_resistentiePerc),
+            AutomaxResistentiePerc = preferences.get(IntKey.Automax_resistentiePerc),
+            AutodagResistentiePerc = preferences.get(IntKey.Autodag_resistentiePerc),
+            AutodagResistentieTarget = preferences.get(DoubleKey.Autodag_resistentie_target),
+            AutonachtResistentiePerc = preferences.get(IntKey.Autonacht_resistentiePerc),
+            AutonachtResistentieTarget = preferences.get(DoubleKey.Autonacht_resistentie_target),
+            AutoResistentieDagen = preferences.get(IntKey.AutoDagen_resistentie),
+            AutoResistentieUren = preferences.get(IntKey.AutoUren_resistentie),
+            AutoresbasalPerc = preferences.get(IntKey.Autores_basalPerc),
+            AutoSMBversterkerPerc = preferences.get(IntKey.AutoSMB_versterkerPerc),
+            AutoSMBversterkerWachttijd = preferences.get(IntKey.AutoSMB_versterkerWachttijd),
+            AutostapactiviteteitPerc = preferences.get(IntKey.Autostap_activiteteitPerc),
+            Autostap5minuten = preferences.get(IntKey.Autostap_5minuten),
+            Autostapretentie = preferences.get(IntKey.Autostap_retentie),
 
-            WeekendDagen = preferences.get(StringKey.WeekendDagen),
-            OchtendStart = preferences.get(StringKey.OchtendStart),
-            OchtendStartWeekend = preferences.get(StringKey.OchtendStartWeekend),
-            MiddagStart = preferences.get(StringKey.MiddagStart),
-            AvondStart = preferences.get(StringKey.AvondStart),
-            NachtStart = preferences.get(StringKey.NachtStart),
+            AutoWeekendDagen = preferences.get(StringKey.AutoWeekendDagen),
+            AutoOchtendStart = preferences.get(StringKey.AutoOchtendStart),
+            AutoOchtendStartWeekend = preferences.get(StringKey.AutoOchtendStartWeekend),
+            AutoMiddagStart = preferences.get(StringKey.AutoMiddagStart),
+            AutoAvondStart = preferences.get(StringKey.AutoAvondStart),
+            AutoNachtStart = preferences.get(StringKey.AutoNachtStart),
             TirTitr = preferences.get(StringKey.TirTitr),
+            AutoGemTDD = preferences.get(DoubleKey.AutoGem_TDD),
+            AutoBasaalTDDPerc = preferences.get(IntKey.AutoBasaal_TDD_Perc),
+            AutoPiekverschuiving = preferences.get(DoubleKey.AutoPiek_verschuiving),
+            AutoBasaalmin = preferences.get(DoubleKey.AutoBasaal_min),
+            AutoBasaalmax = preferences.get(DoubleKey.AutoBasaal_max),
 
             )
         val microBolusAllowed = constraintsChecker.isSMBModeEnabled(ConstraintObject(tempBasalFallback.not(), aapsLogger)).also { inputConstraints.copyReasons(it) }.value()
@@ -409,7 +414,7 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
         aapsLogger.debug(LTag.APS, "flatBGsDetected:    $flatBGsDetected")
         aapsLogger.debug(LTag.APS, "DynIsfMode:         $dynIsfMode")
 
-        determineBasalDynSMB.determine_basal(
+        determineBasalDynAUTOSMB.determine_basal(
             glucose_status = glucoseStatus,
             currenttemp = currentTemp,
             iob_data_array = iobArray,
@@ -428,7 +433,7 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
             determineBasalResult.iobData = iobArray
             determineBasalResult.glucoseStatus = glucoseStatus
             determineBasalResult.currentTemp = currentTemp
-            determineBasalResult.oapsProfileDynamic = oapsProfile
+            determineBasalResult.oapsProfileDynamicAuto = oapsProfile
             determineBasalResult.mealData = mealData
             lastAPSResult = determineBasalResult
             lastAPSRun = now
@@ -578,7 +583,6 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                 addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.ApsMaxMinutesOfBasalToLimitSmb, title = R.string.smb_max_minutes_summary))
                 addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.ApsUamMaxMinutesOfBasalToLimitSmb, dialogMessage = R.string.uam_smb_max_minutes, title = R.string.uam_smb_max_minutes_summary))
 
-
             })
 
             addPreference(preferenceManager.createPreferenceScreen(context).apply {
@@ -592,15 +596,15 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                         summary = R.string.Info_Bg
                     )
                 )
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.bg_PercOchtend, dialogMessage = R.string.bg_OchtendPerc_summary, title = R.string.bg_OchtendPerc_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.bg_PercMiddag, dialogMessage = R.string.bg_MiddagPerc_summary, title = R.string.bg_MiddagPerc_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.bg_PercAvond, dialogMessage = R.string.bg_AvondPerc_summary, title = R.string.bg_AvondPerc_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.bg_PercNacht, dialogMessage = R.string.bg_NachtPerc_summary, title = R.string.bg_NachtPerc_title))
-                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.persistent_Dagdrempel, dialogMessage = R.string.persistent_Dagdrempel_summary, title = R.string.persistent_Dagdrempel_title))
-                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.persistent_Nachtdrempel, dialogMessage = R.string.persistent_Nachtdrempel_summary, title = R.string.persistent_Nachtdrempel_title))
-                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.persistent_grens, dialogMessage = R.string.persistent_grens_summary, title = R.string.persistent_grens_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.hypoPerc, dialogMessage = R.string.hypoPerc_summary, title = R.string.hypoPerc_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.BgIOBPerc, dialogMessage = R.string.BgIOBPerc_summary, title = R.string.BgIOBPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autobg_PercOchtend, dialogMessage = R.string.bg_OchtendPerc_summary, title = R.string.bg_OchtendPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autobg_PercMiddag, dialogMessage = R.string.bg_MiddagPerc_summary, title = R.string.bg_MiddagPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autobg_PercAvond, dialogMessage = R.string.bg_AvondPerc_summary, title = R.string.bg_AvondPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autobg_PercNacht, dialogMessage = R.string.bg_NachtPerc_summary, title = R.string.bg_NachtPerc_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.Autopersistent_Dagdrempel, dialogMessage = R.string.persistent_Dagdrempel_summary, title = R.string.persistent_Dagdrempel_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.Autopersistent_Nachtdrempel, dialogMessage = R.string.persistent_Nachtdrempel_summary, title = R.string.persistent_Nachtdrempel_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.Autopersistent_grens, dialogMessage = R.string.persistent_grens_summary, title = R.string.persistent_grens_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.AutohypoPerc, dialogMessage = R.string.hypoPerc_summary, title = R.string.hypoPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.AutoBgIOBPerc, dialogMessage = R.string.BgIOBPerc_summary, title = R.string.BgIOBPerc_title))
             })
 
             addPreference(preferenceManager.createPreferenceScreen(context).apply {
@@ -615,10 +619,10 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                     )
                 )
 
-                addPreference(AdaptiveSwitchPreference(ctx = context, booleanKey = BooleanKey.stappenAanUit, summary = R.string.stappenAanUit_summary, title = R.string.stappenAanUit_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.stap_activiteteitPerc, dialogMessage = R.string.stap_activiteteitPerc_summary, title = R.string.stap_activiteteitPerc_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.stap_5minuten, dialogMessage = R.string.stap_5minuten_summary, title = R.string.stap_5minuten_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.stap_retentie, dialogMessage = R.string.stap_retentie_summary, title = R.string.stap_retentie_title))
+                addPreference(AdaptiveSwitchPreference(ctx = context, booleanKey = BooleanKey.AutostappenAanUit, summary = R.string.stappenAanUit_summary, title = R.string.stappenAanUit_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autostap_activiteteitPerc, dialogMessage = R.string.stap_activiteteitPerc_summary, title = R.string.stap_activiteteitPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autostap_5minuten, dialogMessage = R.string.stap_5minuten_summary, title = R.string.stap_5minuten_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autostap_retentie, dialogMessage = R.string.stap_retentie_summary, title = R.string.stap_retentie_title))
 
             })
 
@@ -635,8 +639,8 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                     )
                 )
 
-                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.new_uam_boostDrempel, dialogMessage = R.string.new_UAMBoostDrempel_summary, title = R.string.new_UAMBoostDrempel_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.new_uam_boostPerc, dialogMessage = R.string.new_UAMBoostPerc_summary, title = R.string.new_UAMBoostPerc_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.Autonew_uam_boostDrempel, dialogMessage = R.string.new_UAMBoostDrempel_summary, title = R.string.new_UAMBoostDrempel_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autonew_uam_boostPerc, dialogMessage = R.string.new_UAMBoostPerc_summary, title = R.string.new_UAMBoostPerc_title))
 
             })
             addPreference(preferenceManager.createPreferenceScreen(context).apply {
@@ -651,8 +655,8 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                     )
                 )
 
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.SMB_versterkerPerc, dialogMessage = R.string.SMB_versterkerPerc_summary, title = R.string.SMB_versterkerPerc_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.SMB_versterkerWachttijd, dialogMessage = R.string.SMB_versterkerWachttijd_summary, title = R.string.SMB_versterkerWachttijd_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.AutoSMB_versterkerPerc, dialogMessage = R.string.SMB_versterkerPerc_summary, title = R.string.SMB_versterkerPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.AutoSMB_versterkerWachttijd, dialogMessage = R.string.SMB_versterkerWachttijd_summary, title = R.string.SMB_versterkerWachttijd_title))
             })
 
             addPreference(preferenceManager.createPreferenceScreen(context).apply {
@@ -668,17 +672,17 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                 )
 
 
-                addPreference(AdaptiveSwitchPreference(ctx = context, booleanKey = BooleanKey.Resistentie, title = R.string.Titel_resistentie))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.min_resistentiePerc, dialogMessage = R.string.min_resistentiePerc_summary, title = R.string.min_resistentiePerc_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.max_resistentiePerc, dialogMessage = R.string.max_resistentiePerc_summary, title = R.string.max_resistentiePerc_title))
+                addPreference(AdaptiveSwitchPreference(ctx = context, booleanKey = BooleanKey.AutoResistentie, title = R.string.Titel_resistentie))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Automin_resistentiePerc, dialogMessage = R.string.min_resistentiePerc_summary, title = R.string.min_resistentiePerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Automax_resistentiePerc, dialogMessage = R.string.max_resistentiePerc_summary, title = R.string.max_resistentiePerc_title))
 
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.dag_resistentiePerc, dialogMessage = R.string.dag_resistentiePerc_summary, title = R.string.dag_resistentiePerc_title))
-                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.dag_resistentie_target, dialogMessage = R.string.dag_resistentie_target_summary, title = R.string.dag_resistentie_target_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.nacht_resistentiePerc, dialogMessage = R.string.nacht_resistentiePerc_summary, title = R.string.nacht_resistentiePerc_title))
-                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.nacht_resistentie_target, dialogMessage = R.string.nacht_resistentie_target_summary, title = R.string.nacht_resistentie_target_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Dagen_resistentie, dialogMessage = R.string.Dagen_resistentie_summary, title = R.string.Dagen_resistentie_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Uren_resistentie, dialogMessage = R.string.Uren_resistentie_summary, title = R.string.Uren_resistentie_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.res_basalPerc, dialogMessage = R.string.res_basalPerc_summary, title = R.string.res_basalPerc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autodag_resistentiePerc, dialogMessage = R.string.dag_resistentiePerc_summary, title = R.string.dag_resistentiePerc_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.Autodag_resistentie_target, dialogMessage = R.string.dag_resistentie_target_summary, title = R.string.dag_resistentie_target_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autonacht_resistentiePerc, dialogMessage = R.string.nacht_resistentiePerc_summary, title = R.string.nacht_resistentiePerc_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.Autonacht_resistentie_target, dialogMessage = R.string.nacht_resistentie_target_summary, title = R.string.nacht_resistentie_target_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.AutoDagen_resistentie, dialogMessage = R.string.Dagen_resistentie_summary, title = R.string.Dagen_resistentie_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.AutoUren_resistentie, dialogMessage = R.string.Uren_resistentie_summary, title = R.string.Uren_resistentie_title))
+
             })
 
             addPreference(preferenceManager.createPreferenceScreen(context).apply {
@@ -693,11 +697,10 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                         summary = R.string.Info_bolus_boost
                     )
                 )
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.bolus_boost_sterkte, dialogMessage = R.string.bolus_boost_sterkte_summary, title = R.string.bolus_boost_sterkte_title))
-                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.bolus_boost_deltaT, dialogMessage = R.string.bolus_boost_deltaT_summary, title = R.string.bolus_boost_deltaT_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autobolus_boost_sterkte, dialogMessage = R.string.bolus_boost_sterkte_summary, title = R.string.bolus_boost_sterkte_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autobolus_boost_deltaT, dialogMessage = R.string.bolus_boost_deltaT_summary, title = R.string.bolus_boost_deltaT_title))
 
             })
-
 
 
             addPreference(preferenceManager.createPreferenceScreen(context).apply {
@@ -712,16 +715,35 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
                         summary = R.string.Info_algemeen
                     )
                 )
-                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.WeekendDagen, dialogMessage = R.string.WeekendDagen_summary, title = R.string.WeekendDagen_title))
-                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.OchtendStart, dialogMessage = R.string.OchtendStart_summary, title = R.string.OchtendStart_title))
-                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.OchtendStartWeekend, dialogMessage = R.string.OchtendStartWeekend_summary, title = R.string.OchtendStartWeekend_title))
-                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.MiddagStart, dialogMessage = R.string.MiddagStart_summary, title = R.string.MiddagStart_title))
-                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.AvondStart, dialogMessage = R.string.AvondStart_summary, title = R.string.AvondStart_title))
-                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.NachtStart, dialogMessage = R.string.NachtStart_summary, title = R.string.NachtStart_title))
+                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.AutoWeekendDagen, dialogMessage = R.string.WeekendDagen_summary, title = R.string.WeekendDagen_title))
+                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.AutoOchtendStart, dialogMessage = R.string.OchtendStart_summary, title = R.string.OchtendStart_title))
+                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.AutoOchtendStartWeekend, dialogMessage = R.string.OchtendStartWeekend_summary, title = R.string.OchtendStartWeekend_title))
+                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.AutoMiddagStart, dialogMessage = R.string.MiddagStart_summary, title = R.string.MiddagStart_title))
+                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.AutoAvondStart, dialogMessage = R.string.AvondStart_summary, title = R.string.AvondStart_title))
+                addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.AutoNachtStart, dialogMessage = R.string.NachtStart_summary, title = R.string.NachtStart_title))
                 addPreference(AdaptiveStringPreference(ctx = context, stringKey = StringKey.TirTitr, dialogMessage = R.string.TirTitr_summary, title = R.string.TirTitr_title))
             })
 
+            addPreference(preferenceManager.createPreferenceScreen(context).apply {
+                key = "Auto basaal instelling"
+                title = "h). Auto basaal instelling"
 
+                addPreference(
+                    AdaptiveIntentPreference(
+                        ctx = context,
+                        intentKey = IntentKey.ApsLinkToDocs,
+                        intent = Intent().apply { action = Intent.ACTION_VIEW; data = Uri.parse(rh.gs(R.string.h_algemeen_doc)) },
+                        summary = R.string.Info_algemeen
+                    )
+                )
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.AutoGem_TDD, dialogMessage = R.string.Gem_TDD_summary, title = R.string.Gem_TDD_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.AutoBasaal_TDD_Perc, dialogMessage = R.string.Basaal_TDD_Perc_summary, title = R.string.Basaal_TDD_Perc_title))
+                addPreference(AdaptiveIntPreference(ctx = context, intKey = IntKey.Autores_basalPerc, dialogMessage = R.string.res_basalPerc_summary, title = R.string.res_basalPerc_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.AutoPiek_verschuiving, dialogMessage = R.string.Piek_verschuiving_summary, title = R.string.Piek_verschuiving_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.AutoBasaal_min, dialogMessage = R.string.Basaal_min_summary, title = R.string.Basaal_min_title))
+                addPreference(AdaptiveDoublePreference(ctx = context, doubleKey = DoubleKey.AutoBasaal_max, dialogMessage = R.string.Basaal_max_summary, title = R.string.Basaal_max_title))
+
+            })
         }
     }
 
@@ -733,13 +755,13 @@ open class OpenAPSDynSMBPlugin @Inject constructor(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<OpenAPSDynSMBPlugin> {
+    companion object CREATOR : Parcelable.Creator<OpenAPSDynAUTOSMBPlugin> {
 
-        override fun createFromParcel(parcel: Parcel): OpenAPSDynSMBPlugin {
-            return OpenAPSDynSMBPlugin(parcel)
+        override fun createFromParcel(parcel: Parcel): OpenAPSDynAUTOSMBPlugin {
+            return OpenAPSDynAUTOSMBPlugin(parcel)
         }
 
-        override fun newArray(size: Int): Array<OpenAPSDynSMBPlugin?> {
+        override fun newArray(size: Int): Array<OpenAPSDynAUTOSMBPlugin?> {
             return arrayOfNulls(size)
         }
     }

@@ -22,6 +22,7 @@ fun app.aaps.database.entities.APSResult.fromDb(injector: HasAndroidInjector): A
         app.aaps.database.entities.APSResult.Algorithm.AMA,
         app.aaps.database.entities.APSResult.Algorithm.SMB,
         app.aaps.database.entities.APSResult.Algorithm.DYNAMIC,
+        app.aaps.database.entities.APSResult.Algorithm.AUTO,
         app.aaps.database.entities.APSResult.Algorithm.AIMI ->
             DetermineBasalResult(injector, Json.decodeFromString(this.resultJson)).also { result ->
                 result.date = this.timestamp
@@ -54,6 +55,17 @@ fun app.aaps.database.entities.APSResult.fromDb(injector: HasAndroidInjector): A
                 result.autosensResult = this.autosensDataJson?.let { Json.decodeFromString(it) }
             }
         app.aaps.database.entities.APSResult.Algorithm.DYNAMIC  ->
+            DetermineBasalResult(injector, Json.decodeFromString(this.resultJson)).also { result ->
+                result.date = this.timestamp
+                result.glucoseStatus = this.glucoseStatusJson?.let { Json.decodeFromString(it) }
+                result.currentTemp = this.currentTempJson?.let { Json.decodeFromString(it) }
+                result.iobData = this.iobDataJson?.let { Json.decodeFromString(it) }
+                result.oapsProfileDynamic = this.profileJson?.let { Json.decodeFromString(it) }
+                result.mealData = this.mealDataJson?.let { Json.decodeFromString(it) }
+                result.autosensResult = this.autosensDataJson?.let { Json.decodeFromString(it) }
+
+            }
+        app.aaps.database.entities.APSResult.Algorithm.AUTO  ->
             DetermineBasalResult(injector, Json.decodeFromString(this.resultJson)).also { result ->
                 result.date = this.timestamp
                 result.glucoseStatus = this.glucoseStatusJson?.let { Json.decodeFromString(it) }

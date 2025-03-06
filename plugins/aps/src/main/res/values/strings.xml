@@ -501,8 +501,21 @@
 
     <string name="Info_origineel">● Originele instellingen van het openApsSMB algoritme:\n 1. ........\n 2. ..........</string>
     <string name="DynSMB">DYNAMIC</string>
+    <string name="DynSMB_Auto">AUTO</string>
     <string name="description_DynSmb">Aangepast OpenAPS SMB voor Dynamisch insuline afgifte</string>
-    <string name="DynBasaal">Dynamic</string>
-    <string name="description_DynBasaal">Aangepast OpenAPS voor dynamisch basaal en ISF</string>
+    <string name="description_DynSmb_Auto">Aangepast OpenAPS SMB voor Automatisch profiel</string>
+
+    <!--    auto basaal -->
+    <string name="Gem_TDD_summary">Gemiddeld TDD gebruikt bij onvoldoende TDD data</string>
+    <string name="Gem_TDD_title">gem. TDD</string>
+    <string name="Basaal_TDD_Perc_summary">Percentage van de TTD wat gebruikt wordt als basaal</string>
+    <string name="Basaal_TDD_Perc_title">perc. Basaal tov TDD</string>
+    <string name="Piek_verschuiving_summary">aantal uren na middernacht waar de piek in het basaal ligt</string>
+    <string name="Piek_verschuiving_title">Piek verschuiving</string>
+    <string name="Basaal_min_summary">minimum waarde waarboven het berekende basaal blijft</string>
+    <string name="Basaal_min_title">minimum basaal</string>
+    <string name="Basaal_max_summary">maximum waarde waaronder het berekende basaal blijft</string>
+    <string name="Basaal_max_title">maximum basaal</string>
+
 
 </resources>

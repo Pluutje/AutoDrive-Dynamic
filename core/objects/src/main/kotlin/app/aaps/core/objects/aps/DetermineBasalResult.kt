@@ -15,6 +15,7 @@ import app.aaps.core.interfaces.aps.OapsProfile
 import app.aaps.core.interfaces.aps.OapsProfileAimi
 import app.aaps.core.interfaces.aps.OapsProfileAutoIsf
 import app.aaps.core.interfaces.aps.OapsProfileDynamic
+import app.aaps.core.interfaces.aps.OapsProfileDynamicAuto
 import app.aaps.core.interfaces.aps.Predictions
 import app.aaps.core.interfaces.aps.RT
 import app.aaps.core.interfaces.constraints.Constraint
@@ -84,6 +85,7 @@ class DetermineBasalResult @Inject constructor(var injector: HasAndroidInjector)
     override var currentTemp: CurrentTemp? = null
     override var oapsProfile: OapsProfile? = null
     override var oapsProfileDynamic: OapsProfileDynamic? = null
+    override var oapsProfileDynamicAuto: OapsProfileDynamicAuto? = null
     override var oapsProfileAutoIsf: OapsProfileAutoIsf? = null
     override var oapsProfileAimi: OapsProfileAimi? = null
     override var mealData: MealData? = null
@@ -94,7 +96,8 @@ class DetermineBasalResult @Inject constructor(var injector: HasAndroidInjector)
         APSResult.Algorithm.SMB,
         APSResult.Algorithm.AMA,
         APSResult.Algorithm.AIMI,
-        APSResult.Algorithm.DYNAMIC
+        APSResult.Algorithm.DYNAMIC,
+        APSResult.Algorithm.AUTO
     )
 
     init {

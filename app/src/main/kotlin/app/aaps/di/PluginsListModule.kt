@@ -1,7 +1,8 @@
 package app.aaps.di
 
 import app.aaps.core.interfaces.plugin.PluginBase
-import app.aaps.plugins.aps.DynSMB.OpenAPSDynSMBPlugin
+import app.aaps.plugins.aps.DYN_AUTO.OpenAPSDynAUTOSMBPlugin
+import app.aaps.plugins.aps.DYNAMIC.OpenAPSDynSMBPlugin
 import app.aaps.plugins.aps.autotune.AutotunePlugin
 import app.aaps.plugins.aps.loop.LoopPlugin
 import app.aaps.plugins.aps.openAPSAIMI.OpenAPSAIMIPlugin
@@ -57,17 +58,14 @@ import app.aaps.plugins.sync.tizen.TizenPlugin
 import app.aaps.plugins.sync.wear.WearPlugin
 import app.aaps.plugins.sync.xdrip.XdripPlugin
 import app.aaps.pump.danar.DanaRPlugin
-import app.aaps.pump.danarkorean.DanaRKoreanPlugin
 import app.aaps.pump.danars.DanaRSPlugin
 import app.aaps.pump.danarv2.DanaRv2Plugin
 import app.aaps.pump.diaconn.DiaconnG8Plugin
 import app.aaps.pump.eopatch.EopatchPumpPlugin
 import app.aaps.pump.equil.EquilPumpPlugin
 import app.aaps.pump.insight.InsightPlugin
-import app.aaps.pump.medtronic.MedtronicPumpPlugin
 import app.aaps.pump.medtrum.MedtrumPlugin
 import app.aaps.pump.omnipod.dash.OmnipodDashPumpPlugin
-import app.aaps.pump.omnipod.eros.OmnipodErosPumpPlugin
 import app.aaps.pump.virtual.VirtualPumpPlugin
 import dagger.Binds
 import dagger.Module
@@ -253,6 +251,12 @@ abstract class PluginsListModule {
     @IntoMap
     @IntKey(222)
     abstract fun bindOpenAPSDynSMBPlugin(plugin: OpenAPSDynSMBPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(223)
+    abstract fun bindOpenAPSDynAUTOSMBPlugin(plugin: OpenAPSDynAUTOSMBPlugin): PluginBase
 
     @Binds
     @AllConfigs

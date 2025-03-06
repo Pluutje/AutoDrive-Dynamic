@@ -125,4 +125,8 @@ enum class BooleanKey(
     stappenAanUit("stappenAanUit",true),
     Resistentie("Resistentie",true),
     GebruikAutoSense("GebruikAutoSense",true),
+
+    AutostappenAanUit("AutostappenAanUit",true),
+    AutoResistentie("AutoResistentie",true),
+    AutoGebruikAutoSense("AutoGebruikAutoSense",true),
 }

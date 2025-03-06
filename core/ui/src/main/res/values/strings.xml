@@ -644,6 +644,7 @@
 
     <!--    Eigen -->
     <string name="Dynsmb_shortname">DYN</string>
-    <string name="DynBasaal_shortname">Dynamic</string>
+    <string name="Dynsmb_shortname_Auto">AUTO</string>
+
 
 </resources>

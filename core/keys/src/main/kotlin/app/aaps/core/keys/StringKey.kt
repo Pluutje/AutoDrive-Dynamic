@@ -60,4 +60,13 @@ enum class StringKey(
     NachtStart(key = "NachtStart", "23:30"),
     WeekendDagen(key = "WeekendDagen", "za,zo"),
     TirTitr(key = "TirTitr", "TIR"),
+
+    AutoOchtendStart(key = "AutoOchtendStart", "06:30"),
+    AutoOchtendStartWeekend(key = "AutoOchtendStartWeekend", "08:00"),
+    AutoMiddagStart(key = "AutoMiddagStart", "11:45"),
+    AutoAvondStart(key = "AutoAvondStart", "17:30"),
+    AutoNachtStart(key = "AutoNachtStart", "23:30"),
+    AutoWeekendDagen(key = "AutoWeekendDagen", "za,zo"),
+
+
 }

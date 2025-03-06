@@ -114,4 +114,33 @@ enum class IntKey(
     bg_PercMiddag("bg_PercMiddag",100,50, 250),
     bg_PercAvond("bg_PercAvond",100,50, 250),
     bg_PercNacht("bg_PercNacht",100,50, 250),
+
+    Autobolus_boost_sterkte("Autobolus_boost_sterkte",0,0, 20),
+    Autobolus_boost_deltaT("Autobolus_boost_deltaT",0,-15, 15),
+    AutoBoostPerc("AutohighCarbPercAuto",225,50, 500),
+    AutominBoostPerc("AutominBoostPerc",50,10, 100),
+    AutomaxBoostPerc("AutomaxBoostPerc",400,100, 750),
+    Autonew_uam_boostPerc("Autonew_uam_boostPerc", 200,100,350),
+    AutohypoPerc("AutohypoPerc", 50,10,100),
+    AutoBgIOBPerc("AutoBgIOBPerc", 100,100,200),
+
+    Automin_resistentiePerc("Automin_resistentiePerc", 80,10,100),
+    Automax_resistentiePerc("Automax_resistentiePerc", 120,100,200),
+    Autodag_resistentiePerc("Autodag_resistentiePerc", 100,10,200),
+    Autonacht_resistentiePerc("Autonacht_resistentiePerc", 100,10,200),
+    AutoDagen_resistentie("AutoDagen_resistentie", 3,1,7),
+    AutoUren_resistentie("AutoUren_resistentie", 2,1,5),
+    Autores_basalPerc("Autores_basalPerc", 50,0,100),
+    AutoSMB_versterkerPerc("AutoSMB_versterkerPerc", 100,100,250),
+    AutoSMB_versterkerWachttijd("AutoSMB_versterkerWachttijd", 7,1,30),
+    Autostap_activiteteitPerc("Autostap_activiteteitPerc", 50,10,100),
+    Autostap_5minuten("Autostap_5minuten", 200,100,300),
+    Autostap_retentie("Autostap_retentie", 6,2,12),
+    Autobg_PercOchtend("Autobg_PercOchtend",100,50, 250),
+    Autobg_PercMiddag("Autobg_PercMiddag",100,50, 250),
+    Autobg_PercAvond("Autobg_PercAvond",100,50, 250),
+    Autobg_PercNacht("Autobg_PercNacht",100,50, 250),
+
+    // auto basaal
+    AutoBasaal_TDD_Perc("AutoBasaal_TDD_Perc", 50,25,75),
 }

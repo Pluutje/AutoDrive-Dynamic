@@ -969,7 +969,12 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val TIR_24h_4_8 = (tirCalculator.averageTIR(tirCalculator.calculateXHour(24,70.0, 144.0))?.inRangePct()!!).roundToInt()
         val TIR_5d_4_8 = (tirCalculator.averageTIR(tirCalculator.calculate(5,70.0, 144.0))?.inRangePct()!!).roundToInt()
 
-        var TIR_TITR = preferences.get(StringKey.TirTitr)
+
+
+
+        val  TIR_TITR = preferences.get(StringKey.TirTitr)
+
+        //var TIR_TITR = preferences.get(StringKey.TirTitr)
         val iobText = iobText()
         val iobDialogText = iobDialogText()
         val displayText = iobCobCalculator.getCobInfo("Overview COB").displayText(rh, decimalFormatter)
@@ -1000,6 +1005,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
           if (TIR_TITR == "TITR") {
             cobText = "TITR " + TIR_24h_4_8.toString() + "%" + " - " + TIR_5d_4_8.toString() + "%"
            }
+
             binding.infoLayout.cob.text = cobText
         }
     }

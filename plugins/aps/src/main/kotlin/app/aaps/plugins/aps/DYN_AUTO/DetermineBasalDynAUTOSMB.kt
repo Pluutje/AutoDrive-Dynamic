@@ -1,4 +1,4 @@
-package app.aaps.plugins.aps.DYNAMIC
+package app.aaps.plugins.aps.DYN_AUTO
 
 import android.os.Environment
 import app.aaps.core.data.time.T
@@ -8,7 +8,7 @@ import app.aaps.core.interfaces.aps.CurrentTemp
 import app.aaps.core.interfaces.aps.GlucoseStatus
 import app.aaps.core.interfaces.aps.IobTotal
 import app.aaps.core.interfaces.aps.MealData
-import app.aaps.core.interfaces.aps.OapsProfileDynamic
+import app.aaps.core.interfaces.aps.OapsProfileDynamicAuto
 import app.aaps.core.interfaces.aps.Predictions
 import app.aaps.core.interfaces.aps.RT
 import app.aaps.core.interfaces.db.PersistenceLayer
@@ -31,22 +31,26 @@ import kotlin.math.min
 import kotlin.math.pow
 
 import app.aaps.core.interfaces.stats.TirCalculator
+import app.aaps.core.interfaces.stats.TddCalculator
 
 
 
 @Singleton
-data class Bolus_Basaal(val BolusViaBasaal: Boolean, val BasaalStand: Float , val ResterendeTijd: Float)
-data class Extra_Insuline(val ExtraIns_AanUit: Boolean, val ExtraIns_waarde: Float ,val CfTijd: Double,val CfIns: Float, val ExtraIns_tijd: Int)
-data class uur_minuut1(val uur: Int, val minuut: Int)
-data class Resistentie_class(val resistentie: Double, val log: String)
+data class Bolus_Basaal_Auto(val BolusViaBasaal: Boolean, val BasaalStand: Float , val ResterendeTijd: Float)
+data class Extra_Insuline_Auto(val ExtraIns_AanUit: Boolean, val ExtraIns_waarde: Float ,val CfTijd: Double,val CfIns: Float, val ExtraIns_tijd: Int)
+data class uur_minuut1_Auto(val uur: Int, val minuut: Int)
+data class Resistentie_class_Auto(val resistentie: Double, val log: String)
+data class Basaal_class_Auto(val basaal: Double, val log: String)
+data class gemTDD_class_Auto(val gemTDD: Double, val log: String)
 
-class DetermineBasalDynSMB @Inject constructor(
+class DetermineBasalDynAUTOSMB @Inject constructor(
     private val profileUtil: ProfileUtil,
     private val fabricPrivacy: FabricPrivacy,
     val persistenceLayer: PersistenceLayer,
     val dateUtil: DateUtil
 ) {
     @Inject lateinit var tirCalculator: TirCalculator
+    @Inject lateinit var tddCalculator: TddCalculator
 
 // openapsaimi settings
     private var StapRetentie: Int = 0
@@ -81,12 +85,12 @@ class DetermineBasalDynSMB @Inject constructor(
         return (Math.round(value * scale) / scale).toInt()
     }
 
-    fun refreshTime() : uur_minuut1 {
+    fun refreshTime() : uur_minuut1_Auto {
         val calendarInstance = Calendar.getInstance() // Nieuwe tijd ophalen
 
         val uur = calendarInstance[Calendar.HOUR_OF_DAY]
         val minuut = calendarInstance[Calendar.MINUTE]
-        return uur_minuut1(uur,minuut)
+        return uur_minuut1_Auto(uur,minuut)
     }
 
 
@@ -97,6 +101,57 @@ class DetermineBasalDynSMB @Inject constructor(
         val cf_delta = (1 + (2 * delta15) / 100).coerceIn(0.5,1.0)
         return cf_iob * cf_delta
     }
+
+    fun gem_TDD(profile: OapsProfileDynamicAuto): gemTDD_class_Auto {
+
+        // Bereken TDD-waarden en vermenigvuldig tddLast12H met 2 indien niet null
+        val tddValues = listOf(
+            tddCalculator.calculateDaily(-12, 0)?.totalAmount?.times(2), // tddLast12H
+            tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.data?.totalAmount, // tdd1D
+            tddCalculator.averageTDD(tddCalculator.calculate(2, allowMissingDays = false))?.data?.totalAmount, // tdd2D
+            tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = false))?.data?.totalAmount  // tdd3D
+        )
+
+        // Vervang null-waarden door tdd_prof en bereken gemiddelde
+        val TDD_gem = tddValues.map { it ?: profile.AutoGemTDD }.average()
+        val log_TDD = buildString {
+            tddValues.forEachIndexed { index, value ->
+            appendLine(" ● TDD ${if (index == 0) "12 uur" else "${index} dag(en)"}: ${round(value ?: profile.AutoGemTDD, 1)}")
+            }
+        }
+
+        return gemTDD_class_Auto(TDD_gem, log_TDD)
+    }
+
+    fun Auto_Basaal(profile: OapsProfileDynamicAuto): Basaal_class_Auto {
+
+
+        // Tijd berekeningen
+        val (uurVanDag, minuut) = refreshTime()
+        val minuutTxt = "%02d".format(minuut)
+        val tijd = uurVanDag + minuut / 60.0
+        val tijd_corr = 24 / (2 * Math.PI)
+        val verschuiving_corr = profile.AutoPiekverschuiving / tijd_corr
+        val cos_Xwaarde = Math.cos((tijd / tijd_corr) - verschuiving_corr)
+
+        // Basaal berekeningen
+        val (gemTDD,log_TDD) = gem_TDD(profile)
+        val tdd_uur = gemTDD / 24.0
+        val basis_basaal = tdd_uur * (profile.AutoBasaalTDDPerc / 100.0)
+        val berekend_basaal = basis_basaal + (basis_basaal * (cos_Xwaarde / 2.5))
+
+        // Logging met StringBuilder (sneller dan string concatenation)
+        var log_new_basaal = buildString {
+            appendLine(" \n ﴿ new basaal  ﴾")
+            appendLine(" ● Tijd: $uurVanDag:$minuutTxt")
+            appendLine(" ● Berekend basaal: ${round(berekend_basaal, 2)} eh/u")
+            appendLine(" ● Gem TDD: ${round(gemTDD, 1)} eh/dag")
+        //    appendLine(" ● Cosinus: ${round(cos_Xwaarde, 1)}")
+                }
+        log_new_basaal = log_new_basaal + log_TDD
+        return Basaal_class_Auto(berekend_basaal, log_new_basaal)
+    }
+
 
     fun calculateCorrectionFactor(bgGem: Double, targetProfiel: Double, macht: Double, rel_std: Int): Double {
         var rel_std_cf = 1.0
@@ -142,12 +197,12 @@ class DetermineBasalDynSMB @Inject constructor(
         return Pair(bgAverage, stdDev)
     }
 
-    fun Resistentie(profile: OapsProfileDynamic): Resistentie_class {
+    fun Resistentie(profile: OapsProfileDynamicAuto): Resistentie_class_Auto {
         var log_resistentie = " ﴿ Resistentie Correctie ﴾" + "\n"
 
-        if (!profile.resistentie) {
+        if (!profile.Autoresistentie) {
             log_resistentie = log_resistentie + " → resistentie aan/uit: uit " + "\n"
-            return Resistentie_class(1.0,log_resistentie)
+            return Resistentie_class_Auto(1.0,log_resistentie)
         }
         log_resistentie = log_resistentie + " → resistentie aan/uit: aan " + "\n"
 
@@ -156,23 +211,23 @@ class DetermineBasalDynSMB @Inject constructor(
         var target_profiel = 5.2
         val (uurVanDag,minuten) = refreshTime()
 
-        val (NachtStartUur, NachtStartMinuut) = profile.NachtStart.split(":").map { it.toInt() }
-        val (OchtendStartUur, OchtendStartMinuut) = profile.OchtendStart.split(":").map { it.toInt() }
+        val (NachtStartUur, NachtStartMinuut) = profile.AutoNachtStart.split(":").map { it.toInt() }
+        val (OchtendStartUur, OchtendStartMinuut) = profile.AutoOchtendStart.split(":").map { it.toInt() }
         if (isInTijdBereik(uurVanDag, minuten, NachtStartUur, NachtStartMinuut, OchtendStartUur, OchtendStartMinuut)) {
-            resistentie_percentage = profile.nachtResistentiePerc
-            target_profiel = profile.nachtResistentieTarget
+            resistentie_percentage = profile.AutonachtResistentiePerc
+            target_profiel = profile.AutonachtResistentieTarget
             log_resistentie = log_resistentie + " ● Resistentie sterkte (nacht): " + resistentie_percentage + "%" + "\n"
             log_resistentie = log_resistentie + "                            Target: " + target_profiel + " mmol/l" + "\n"
         } else {
-            resistentie_percentage = profile.dagResistentiePerc
-            target_profiel = profile.dagResistentieTarget
+            resistentie_percentage = profile.AutodagResistentiePerc
+            target_profiel = profile.AutodagResistentieTarget
             log_resistentie = log_resistentie + " ● Resistentie sterkte (dag): " + resistentie_percentage + "%" + "\n"
             log_resistentie = log_resistentie + "                          Target: " + target_profiel + " mmol/l" + "\n"
         }
 
         val macht =  Math.pow(resistentie_percentage.toDouble(), 1.4)/2800
-        val numPairs = profile.ResistentieDagen // Hier kies je hoeveel paren je wilt gebruiken
-        val uren = profile.ResistentieUren
+        val numPairs = profile.AutoResistentieDagen // Hier kies je hoeveel paren je wilt gebruiken
+        val uren = profile.AutoResistentieUren
 
         val x = uren.toLong()         // Constante waarde voor ± x
         val intervals = mutableListOf<Pair<Long, Long>>()
@@ -212,8 +267,8 @@ class DetermineBasalDynSMB @Inject constructor(
 
         ResistentieCfEff = ResistentieCfEff / tot_gew_gem.toDouble()
 
-        val minRes = profile.minResistentiePerc.toDouble()/100
-        val maxRes = profile.maxResistentiePerc.toDouble()/100
+        val minRes = profile.AutominResistentiePerc.toDouble()/100
+        val maxRes = profile.AutomaxResistentiePerc.toDouble()/100
 
         ResistentieCfEff = ResistentieCfEff.coerceIn(minRes, maxRes)
 
@@ -223,11 +278,11 @@ class DetermineBasalDynSMB @Inject constructor(
             log_resistentie = log_resistentie + "\n" + " »» Cf_eff (begrensd) = " + (ResistentieCfEff * 100).toInt() + "%" + "\n"
         }
 
-        return Resistentie_class(ResistentieCfEff,log_resistentie)
+        return Resistentie_class_Auto(ResistentieCfEff,log_resistentie)
 
     }
 
-    fun ActExtraIns(profile: OapsProfileDynamic): Extra_Insuline {
+    fun ActExtraIns(profile: OapsProfileDynamicAuto): Extra_Insuline_Auto {
 
         val tijdNu = System.currentTimeMillis()/(60 * 1000)
         var extra_insuline_tijdstip = "0"
@@ -264,9 +319,9 @@ class DetermineBasalDynSMB @Inject constructor(
             extra_insuline = true
             corr_factor = (extra_insuline_percentage.toFloat())
 
-            val Max_Cf_tijd = 1.0 + profile.BolusBoostSterkte.toDouble()/100
-            val Min_Cf_tijd = 1.0 - profile.BolusBoostSterkte.toDouble()/100
-            val Offset_tijd = extra_insuline_tijd.toFloat()/2 + profile.BolusBoostDeltaT.toFloat()
+            val Max_Cf_tijd = 1.0 + profile.AutoBolusBoostSterkte.toDouble()/100
+            val Min_Cf_tijd = 1.0 - profile.AutoBolusBoostSterkte.toDouble()/100
+            val Offset_tijd = extra_insuline_tijd.toFloat()/2 + profile.AutoBolusBoostDeltaT.toFloat()
             val Slope_tijd = 3
             Cf_tijd = Min_Cf_tijd + (Max_Cf_tijd - Min_Cf_tijd)/(1 + Math.pow((verstreken_tijd.toDouble() / Offset_tijd) , Slope_tijd.toDouble()))
             Cf_overall = round(corr_factor * Cf_tijd,2).toFloat()
@@ -278,10 +333,10 @@ class DetermineBasalDynSMB @Inject constructor(
             resterendeTijd = 0
         }
 
-        return Extra_Insuline(extra_insuline,Cf_overall,Cf_tijd,corr_factor,resterendeTijd)
+        return Extra_Insuline_Auto(extra_insuline,Cf_overall,Cf_tijd,corr_factor,resterendeTijd)
     }
 
-    fun BolusViaBasaal(): Bolus_Basaal {
+    fun BolusViaBasaal(): Bolus_Basaal_Auto {
 
         val tijdNu = System.currentTimeMillis()/(60 * 1000)
         var bolus_basaal_check = "0"
@@ -319,7 +374,7 @@ class DetermineBasalDynSMB @Inject constructor(
             temp_basaal = 0.0f
         }
 
-        return Bolus_Basaal(bolus_via_basaal,temp_basaal,rest_tijd.toFloat())
+        return Bolus_Basaal_Auto(bolus_via_basaal,temp_basaal,rest_tijd.toFloat())
 
     }
 
@@ -356,7 +411,7 @@ class DetermineBasalDynSMB @Inject constructor(
     //if (profile.out_units === "mmol/L") round(value / 18, 1).toFixed(1);
     //else Math.round(value);
 
-    fun enable_smb(profile: OapsProfileDynamic, microBolusAllowed: Boolean, meal_data: MealData, target_bg: Double): Boolean {
+    fun enable_smb(profile: OapsProfileDynamicAuto, microBolusAllowed: Boolean, meal_data: MealData, target_bg: Double): Boolean {
         // disable SMB when a high temptarget is set
         if (!microBolusAllowed) {
             consoleError.add("SMB disabled (!microBolusAllowed)")
@@ -388,10 +443,10 @@ class DetermineBasalDynSMB @Inject constructor(
         consoleError.add(msg)
     }
 
-    private fun getMaxSafeBasal(profile: OapsProfileDynamic): Double =
+    private fun getMaxSafeBasal(profile: OapsProfileDynamicAuto): Double =
         min(profile.max_basal, min(125.0 * profile.max_daily_basal, 125.0 * profile.current_basal))
 
-    fun setTempBasal(_rate: Double, duration: Int, profile: OapsProfileDynamic, rT: RT, currenttemp: CurrentTemp): RT {
+    fun setTempBasal(_rate: Double, duration: Int, profile: OapsProfileDynamicAuto, rT: RT, currenttemp: CurrentTemp): RT {
         //var maxSafeBasal = Math.min(profile.max_basal, 3 * profile.max_daily_basal, 4 * profile.current_basal);
 
         val maxSafeBasal = getMaxSafeBasal(profile)
@@ -430,7 +485,7 @@ class DetermineBasalDynSMB @Inject constructor(
     }
 
     fun determine_basal(
-        glucose_status: GlucoseStatus, currenttemp: CurrentTemp, iob_data_array: Array<IobTotal>, profile: OapsProfileDynamic, autosens_data: AutosensResult, meal_data: MealData,
+        glucose_status: GlucoseStatus, currenttemp: CurrentTemp, iob_data_array: Array<IobTotal>, profile: OapsProfileDynamicAuto, autosens_data: AutosensResult, meal_data: MealData,
         microBolusAllowed: Boolean, currentTime: Long, flatBGsDetected: Boolean, dynIsfMode: Boolean
     ): RT {
         consoleError.clear()
@@ -458,7 +513,7 @@ class DetermineBasalDynSMB @Inject constructor(
         )
 
 // Converteer de invoerstring naar een lijst van Calendar-dagen
-        val weekendString = profile.WeekendDagen
+        val weekendString = profile.AutoWeekendDagen
         val weekendDays = weekendString.split(",")
             .mapNotNull { dayMapping[it.trim()] } // Map afkortingen naar Calendar-waarden en filter null-waarden
 
@@ -470,14 +525,14 @@ class DetermineBasalDynSMB @Inject constructor(
  // Split de tijden in uren en minuten voor de verschillende delen van de dag
  // Determine morning start time based on weekday or weekend
         val (OchtendStartUur, OchtendStartMinuut) = if (weekend) {
-            profile.OchtendStartWeekend.split(":").map { it.toInt() }
+            profile.AutoOchtendStartWeekend.split(":").map { it.toInt() }
         } else {
-            profile.OchtendStart.split(":").map { it.toInt() }
+            profile.AutoOchtendStart.split(":").map { it.toInt() }
         }
 
-        val (MiddagStartUur, MiddagStartMinuut) = profile.MiddagStart.split(":").map { it.toInt() }
-        val (AvondStartUur, AvondStartMinuut) = profile.AvondStart.split(":").map { it.toInt() }
-        val (NachtStartUur, NachtStartMinuut) = profile.NachtStart.split(":").map { it.toInt() }
+        val (MiddagStartUur, MiddagStartMinuut) = profile.AutoMiddagStart.split(":").map { it.toInt() }
+        val (AvondStartUur, AvondStartMinuut) = profile.AutoAvondStart.split(":").map { it.toInt() }
+        val (NachtStartUur, NachtStartMinuut) = profile.AutoNachtStart.split(":").map { it.toInt() }
 
 // Boolean variabelen voor de verschillende dagdelen
         var isOchtend = false
@@ -508,42 +563,52 @@ class DetermineBasalDynSMB @Inject constructor(
 
         var log_DagNacht = " ﴿ Dag Nacht Weekend ﴾" + "\n"
         if (weekend) {
-            log_DagNacht += " ● Ochtendstart tijd: " + profile.OchtendStartWeekend +  "\n"
+            log_DagNacht += " ● Ochtendstart tijd: " + profile.AutoOchtendStartWeekend +  "\n"
         } else {
-            log_DagNacht += " ● Ochtendstart tijd: " + profile.OchtendStart +  "\n"
+            log_DagNacht += " ● Ochtendstart tijd: " + profile.AutoOchtendStart +  "\n"
         }
-        log_DagNacht +=  " ● Middagstart tijd: " + profile.MiddagStart +  "\n"
-        log_DagNacht +=  " ● Avondstart tijd: " + profile.AvondStart +  "\n"
-        log_DagNacht +=  " ● Nachtstart tijd: " + profile.NachtStart +  "\n"
+        log_DagNacht +=  " ● Middagstart tijd: " + profile.AutoMiddagStart +  "\n"
+        log_DagNacht +=  " ● Avondstart tijd: " + profile.AutoAvondStart +  "\n"
+        log_DagNacht +=  " ● Nachtstart tijd: " + profile.AutoNachtStart +  "\n"
         log_DagNacht += " ~ Weekend dagen: " + weekendString + " → " + weekend +  "\n"
         log_DagNacht +=  " ● Tijd: " + uurVanDag.toString() + ":" + minuutTxt + " → Deel v/d Dag = " + DeelvanDag + "\n"
         log_DagNacht +=  " \n"
 
      val    DeelvanDag_factor = when {
-            isOchtend -> profile.bg_PercOchtend.toDouble() / 100
-            isMiddag -> profile.bg_PercMiddag.toDouble() / 100
-            isAvond -> profile.bg_PercAvond.toDouble() / 100
-            isNacht -> profile.bg_PercNacht.toDouble() / 100
+            isOchtend -> profile.Autobg_PercOchtend.toDouble() / 100
+            isMiddag -> profile.Autobg_PercMiddag.toDouble() / 100
+            isAvond -> profile.Autobg_PercAvond.toDouble() / 100
+            isNacht -> profile.Autobg_PercNacht.toDouble() / 100
             else -> 1.0  // Als geen enkele voorwaarde waar is, stel het in op de standaardwaarde 1.0
         }
 // Einde Dag Nacht
 
+        var (auto_basaal,log_basaal) = Auto_Basaal(profile)
+
         val (resistentie_factor,log_res) = Resistentie(profile)
-        val res_basal_cf = profile.resbasalPerc
+        val res_basal_cf = profile.AutoresbasalPerc
         val resistentie_basal_factor = ((resistentie_factor - 1)*res_basal_cf/100 + 1) * DeelvanDag_factor
         val ResistentieCfEff_info = (resistentie_factor *100).toInt()
 
-        var log_BasalCorr = " ﴿ Basaal correctie ﴾" + "\n"
-        log_BasalCorr += " ● resistentie correctie: " + (((resistentie_factor - 1)*res_basal_cf/100 + 1)*100).toInt() + "%" + "\n"
-        log_BasalCorr += " ● deel vd dag correctie: " + (DeelvanDag_factor * 100).toInt() + "%" + "\n"
-        log_BasalCorr += " → basaal correctie effectief: " + (resistentie_basal_factor * 100).toInt() + "%" + "\n"
+        // var log_BasalCorr = " ﴿ Basaal correctie ﴾" + "\n"
+        log_basaal += " ● resistentie correctie: " + (((resistentie_factor - 1)*res_basal_cf/100 + 1)*100).toInt() + "%" + "\n"
+        log_basaal += " ● deel vd dag correctie: " + (DeelvanDag_factor * 100).toInt() + "%" + "\n"
+        log_basaal += " → basaal correctie effectief: " + (resistentie_basal_factor * 100).toInt() + "%" + "\n"
+
+        var new_basaal = (auto_basaal  * resistentie_basal_factor).coerceIn(profile.AutoBasaalmin, profile.AutoBasaalmax)
+        //basal = round_basal(basal)
+        if (new_basaal != auto_basaal) {
+            log_basaal += " → basaal van: " + round(auto_basaal,2) + "eh/u naar:" + round(new_basaal,2) + "eh/u" + "\n"
+          } else {
+            log_basaal += " → basaal ongewijzigd: " + round(new_basaal,2) + "eh/u" + "\n"
+        }
 
         // TODO eliminate
         val deliverAt = currentTime
 
         // TODO eliminate
-        val profile_current_basal = round_basal(profile.current_basal) // * resistentie_basal_factor)
-        var basal = profile_current_basal
+      //  val profile_current_basal = round_basal(profile.current_basal) // * resistentie_basal_factor)
+       // var basal = profile_current_basal
 
         // TODO eliminate
         val systemTime = currentTime
@@ -560,16 +625,16 @@ class DetermineBasalDynSMB @Inject constructor(
         val (extraIns_AanUit,extraIns_Factor,Cf_tijd,Cf_Ins :Float ,rest_tijd) = ActExtraIns(profile)
 
         if (bolus_basaal_AanUit) {
-            basal = round_basal(bolus_basaal_waarde.toDouble())
+            new_basaal = round_basal(bolus_basaal_waarde.toDouble())
             consoleError.add(" ﴿―― Bolus via basaal ――﴾")
-            consoleError.add(" → basaal: " + round(basal,2) + "(u/h)")
+            consoleError.add(" → basaal: " + round(new_basaal,2) + "(u/h)")
             consoleError.add(" → nog $rest_tijd_basaal minuten resterend")
             consoleError.add(" ﴿―――――――――――――――﴾")
 
             rT.reason.append("=> Insuline via basaal:  $bolus_basaal_waarde u/h")
             rT.deliverAt = deliverAt
             rT.duration = 30
-            rT.rate = basal
+            rT.rate = new_basaal
             return rT
         }
 
@@ -585,11 +650,11 @@ class DetermineBasalDynSMB @Inject constructor(
             rT.reason.append("Error: CGM data is unchanged for the past ~45m")
         }
         if (bg <= 10 || bg == 38.0 || noise >= 3 || minAgo > 12 || minAgo < -5 || (bg > 60 && flatBGsDetected)) {
-            if (currenttemp.rate > basal) { // high temp is running
-                rT.reason.append(". Replacing high temp basal of ${currenttemp.rate} with neutral temp of $basal")
+            if (currenttemp.rate > new_basaal) { // high temp is running
+                rT.reason.append(". Replacing high temp basal of ${currenttemp.rate} with neutral temp of $new_basaal")
                 rT.deliverAt = deliverAt
                 rT.duration = 30
-                rT.rate = basal
+                rT.rate = new_basaal
                 return rT
             } else if (currenttemp.rate == 0.0 && currenttemp.duration > 30) { //shorten long zero temps to 30m
                 rT.reason.append(". Shortening " + currenttemp.duration + "m long zero temp to 30m. ")
@@ -598,7 +663,7 @@ class DetermineBasalDynSMB @Inject constructor(
                 rT.rate = 0.0
                 return rT
             } else { //do nothing.
-                rT.reason.append(". Temp ${currenttemp.rate} <= current basal ${round(basal, 2)}U/hr; doing nothing. ")
+                rT.reason.append(". Temp ${currenttemp.rate} <= current basal ${round(new_basaal, 2)}U/hr; doing nothing. ")
                 return rT
             }
         }
@@ -609,13 +674,7 @@ class DetermineBasalDynSMB @Inject constructor(
         var min_bg = profile.min_bg
         var max_bg = profile.max_bg
 
-        basal = profile.current_basal  * resistentie_basal_factor
-        basal = round_basal(basal)
-        if (basal != profile_current_basal) {
-           log_BasalCorr += " → basaal van: " + round(profile_current_basal,2) + "eh/u naar:" + round(basal,2) + "eh/u" + "\n"
-        } else {
-           log_BasalCorr += " → basaal ongewijzigd: " + round(basal,2) + "eh/u" + "\n"
-        }
+
 
         // adjust min, max, and target BG for sensitivity, such that 50% increase in ISF raises target from 100 to 120
         if (profile.temptargetSet) {
@@ -640,12 +699,12 @@ class DetermineBasalDynSMB @Inject constructor(
 
 // Stappen
         var log_Stappen = " ﴿ Stappen ﴾" + "\n"
-        val min5Stap = profile.stap5minuten
+        val min5Stap = profile.Autostap5minuten
         val min30Stap = ((min5Stap * 30 / 5)/1.6).toInt()
         //   val min60Stap = ((min5Stap * 60 / 5)/2.6).toInt()
         var stap_perc = 100f
 // Variabelen om de actieve duur en huidige status bij te houden
-        if (profile.Stappen) {
+        if (profile.AutoStappen) {
             val thresholds = mapOf(
                 " 5 minuten" to min5Stap,
                 "30 minuten" to min30Stap  //,
@@ -666,7 +725,7 @@ class DetermineBasalDynSMB @Inject constructor(
             }
 
             if (allThresholdsMet) {
-                StapRetentie = (StapRetentie + 1).coerceAtMost(profile.stapretentie) // Limiteer
+                StapRetentie = (StapRetentie + 1).coerceAtMost(profile.Autostapretentie) // Limiteer
                 log_Stappen += " ↗ Drempel overschreden. ($StapRetentie maal).\n"
             } else {
                 log_Stappen += " → Drempel niet overschreden.\n"
@@ -679,11 +738,11 @@ class DetermineBasalDynSMB @Inject constructor(
             // Verhoog target
             if (StapRetentie > 0) {
                 if (allThresholdsMet) {
-                    stap_perc = profile.stapactiviteteitPerc.toFloat()
+                    stap_perc = profile.AutostapactiviteteitPerc.toFloat()
                     log_Stappen += " ● Overschrijding drempels → Insuline perc. $stap_perc %.\n"
                     target_bg += 9
                 } else {
-                    stap_perc = profile.stapactiviteteitPerc.toFloat()
+                    stap_perc = profile.AutostapactiviteteitPerc.toFloat()
                     log_Stappen += " ● nog $StapRetentie * retentie → Insuline perc. $stap_perc %.\n"
                     target_bg += 9
                 }
@@ -747,20 +806,20 @@ class DetermineBasalDynSMB @Inject constructor(
         val NachtDrempelCorr: Double
         val extraNachtPerc: Double
         if (!isNacht) {
-            Persistent_Drempel = profile.PersistentDagDrempel
+            Persistent_Drempel = profile.AutoPersistentDagDrempel
             extraNachtrange = 0.0
             NachtDrempelCorr = 0.0
             extraNachtPerc = 1.0
         } else {
-            Persistent_Drempel = profile.PersistentNachtDrempel
+            Persistent_Drempel = profile.AutoPersistentNachtDrempel
             extraNachtrange = 0.5
             extraNachtPerc = 1.1
             NachtDrempelCorr = 0.5
         }
 
         val Persistent_info: String
-        val Pers_grensL = profile.PersistentGrens * 18 - extraNachtrange
-        val Pers_grensH = (profile.PersistentGrens * 18) + 2 + extraNachtrange
+        val Pers_grensL = profile.AutoPersistentGrens * 18 - extraNachtrange
+        val Pers_grensH = (profile.AutoPersistentGrens * 18) + 2 + extraNachtrange
         var log_Persistent = " ﴿ Persistent hoog ﴾" + "\n"
         if (delta5>-Pers_grensL && delta5<Pers_grensH && delta15>-Pers_grensL-1 && delta15<Pers_grensH+1 && delta30>-Pers_grensL-2 && delta30<Pers_grensH+2 && bg_act > Persistent_Drempel) {
             Persistent_ISF_perc = (((bg_act - Persistent_Drempel-NachtDrempelCorr) / 10.0) + 1.0)*100*extraNachtPerc
@@ -814,9 +873,9 @@ class DetermineBasalDynSMB @Inject constructor(
         // einde UAM-boost Bg en hypo correctie
 
         // code nieuwe uam-boost
-        var uam_boost_percentage = profile.newuamboostPerc.toDouble()
+        var uam_boost_percentage = profile.AutonewuamboostPerc.toDouble()
 
-        val drempel_uam = profile.newuamboostDrempel * 18
+        val drempel_uam = profile.AutonewuamboostDrempel * 18
         val  rest_uam: Double
         val display_UAM_Perc: Int
         var log_UAMBoost = " ﴿ UAM boost ﴾" + "\n"
@@ -860,7 +919,7 @@ class DetermineBasalDynSMB @Inject constructor(
         var log_hypo = " ﴿ Hypo Correctie ﴾" + "\n"
         var hypo_corr_percentage = 100
         if (bg_act < target_bg/18){
-            hypo_corr_percentage = profile.hypoPerc
+            hypo_corr_percentage = profile.AutohypoPerc
             log_hypo += " ● Bg (" + round(bg_act,1).toString() + ") < Target (" + round(target_bg/18,1).toString() + ") → Hypo % = " + hypo_corr_percentage.toString() +"%"
         } else {
             hypo_corr_percentage = 100
@@ -875,7 +934,7 @@ class DetermineBasalDynSMB @Inject constructor(
         var log_BG_IOB = " ﴿ ↑Bg ↓IOB Correctie ﴾" + "\n"
         var BG_IOB_percentage = 100
         if ((bg_act-5)/(iob_data.iob+1) > 2){
-            BG_IOB_percentage = profile.BgIOBPerc
+            BG_IOB_percentage = profile.AutoBgIOBPerc
             log_BG_IOB += " ● Hoge Bg (" + round(bg_act,1).toString() + ") Lage IOB (" + round(iob_data.iob,1).toString() + ") → Bg_IOB % = " + BG_IOB_percentage.toString() +"%"
         } else {
             BG_IOB_percentage = 100
@@ -918,8 +977,8 @@ class DetermineBasalDynSMB @Inject constructor(
         }
 
         // Extra SMB code test
-        val SMB_perc = profile.SMBversterkerPerc
-        val SMB_wachttijd = profile.SMBversterkerWachttijd
+        val SMB_perc = profile.AutoSMBversterkerPerc
+        val SMB_wachttijd = profile.AutoSMBversterkerWachttijd
         var log_SMB_versterker = " ﴿ SMB versterker ﴾" + "\n"
         var smb_factor = 1.0
         if ((System.currentTimeMillis()/(60 * 1000) - SMBWachtTrigger) > SMB_wachttijd && delta15 >= 15 && delta15 >= (delta15_oud + 3)  && bg_act > (target_bg/18 + 0)){
@@ -950,15 +1009,18 @@ class DetermineBasalDynSMB @Inject constructor(
         var overall_cf = Bg_ISF_cf * Persistent_ISF_cf * uam_boost_cf * extraIns_cf * resistentie_factor * stap_cf * hypo_corr_cf * bg_iob_cf
 
 
-        overall_cf = overall_cf.coerceIn(profile.minBoostPerc.toDouble()/100, profile.maxBoostPerc.toDouble()/100)
+        overall_cf = overall_cf.coerceIn(profile.AutominBoostPerc.toDouble()/100, profile.AutomaxBoostPerc.toDouble()/100)
 
         val Display_overall_perc = (overall_cf *100).toInt()
 
         var sens = profile.sens
         sens = sens / overall_cf
 
+
+
+
         consoleError.add(" ")
-        consoleError.add("֎======== Dynamic =========֎")
+        consoleError.add("֎======== Auto =========֎")
         consoleError.add(" ")
         consoleError.add("֎====== ISF ֎۝֎ INFO ======֎")
         consoleError.add(" ")
@@ -971,7 +1033,7 @@ class DetermineBasalDynSMB @Inject constructor(
         consoleError.add(" ● Resistentie correctie: → perc = " + ResistentieCfEff_info + "%")
         consoleError.add(" ● Stappen correctie: → perc = " + display_Stap_perc + "%")
         consoleError.add("    ~~~~~~~~~~~~~~~~~~~~~~")
-        consoleError.add(" → Eff. perc = " + Display_overall_perc + "%  (" + profile.minBoostPerc + "% - " +profile.maxBoostPerc + "%)" )
+        consoleError.add(" → Eff. perc = " + Display_overall_perc + "%  (" + profile.AutominBoostPerc + "% - " +profile.AutomaxBoostPerc + "%)" )
         consoleError.add(" ● Profiel ISF: " + round(profile.sens/18, 1) + " Aangepast naar: " + round(sens/18, 1))
         consoleError.add(" ")
         consoleError.add("֎===========֎۝֎===========֎")
@@ -980,7 +1042,7 @@ class DetermineBasalDynSMB @Inject constructor(
         consoleError.add(" ")
         consoleError.add(log_maxIOB)
         consoleError.add(log_DagNacht)
-        consoleError.add(log_BasalCorr)
+     //   consoleError.add(log_BasalCorr)
         consoleError.add(log_BgIOB)
         consoleError.add(log_BG_IOB)
         consoleError.add(log_Persistent)
@@ -990,6 +1052,8 @@ class DetermineBasalDynSMB @Inject constructor(
         consoleError.add(log_Stappen)
         consoleError.add(log_SMB_versterker)
         consoleError.add(log_ExtraIns)
+        consoleError.add(" ﴿――――――――――――――――――﴾" + "\n")
+        consoleError.add(log_basaal)
         consoleError.add(" ﴿――――――――――――――――――﴾" + "\n")
 
 
@@ -1536,7 +1600,7 @@ class DetermineBasalDynSMB @Inject constructor(
         // always include at least 30m worth of zero temp (carbs to 80, low temp up to target)
         val zeroTempDuration = minutesAboveThreshold
         // BG undershoot, minus effect of zero temps until hitting min_bg, converted to grams, minus COB
-        val zeroTempEffectDouble = profile.current_basal * resistentie_basal_factor * sens * zeroTempDuration / 60
+        val zeroTempEffectDouble = new_basaal * sens * zeroTempDuration / 60
         // don't count the last 25% of COB against carbsReq
         val COBforCarbsReq = max(0.0, meal_data.mealCOB - 0.25 * meal_data.carbs)
         val carbsReq = round(((bgUndershoot - zeroTempEffectDouble) / csf - COBforCarbsReq))
@@ -1548,15 +1612,15 @@ class DetermineBasalDynSMB @Inject constructor(
         }
 
         // don't low glucose suspend if IOB is already super negative and BG is rising faster than predicted
-        if (bg < threshold && iob_data.iob < -profile.current_basal * resistentie_basal_factor * 20 / 60 && minDelta > 0 && minDelta > expectedDelta) {
-            rT.reason.append("IOB ${iob_data.iob} < ${round(-profile.current_basal * resistentie_basal_factor * 20 / 60, 2)}")
+        if (bg < threshold && iob_data.iob < -new_basaal * 20 / 60 && minDelta > 0 && minDelta > expectedDelta) {
+            rT.reason.append("IOB ${iob_data.iob} < ${round(-new_basaal * 20 / 60, 2)}")
             rT.reason.append(" and minDelta ${convert_bg(minDelta)} > expectedDelta ${convert_bg(expectedDelta)}; ")
             // predictive low glucose suspend mode: BG is / is projected to be < threshold
         } else if (bg < threshold || minGuardBG < threshold) {
             rT.reason.append("minGuardBG " + convert_bg(minGuardBG) + "<" + convert_bg(threshold))
             bgUndershoot = target_bg - minGuardBG
             val worstCaseInsulinReq = bgUndershoot / sens
-            var durationReq = round(60 * worstCaseInsulinReq / profile.current_basal * resistentie_basal_factor)
+            var durationReq = round(60 * worstCaseInsulinReq / new_basaal)
             durationReq = round(durationReq / 30.0) * 30
             // always set a 30-120m zero temp (oref0-pump-loop will let any longer SMB zero temp run)
             durationReq = min(120, max(30, durationReq))
@@ -1585,12 +1649,12 @@ class DetermineBasalDynSMB @Inject constructor(
                 } else {
                     rT.reason.append(", but Min. Delta ${minDelta.toFixed2()} > Exp. Delta ${convert_bg(expectedDelta)}")
                 }
-                if (currenttemp.duration > 15 && (round_basal(basal) == round_basal(currenttemp.rate))) {
-                    rT.reason.append(", temp " + currenttemp.rate + " ~ req " + round(basal, 2).withoutZeros() + "U/hr. ")
+                if (currenttemp.duration > 15 && (round_basal(new_basaal) == round_basal(currenttemp.rate))) {
+                    rT.reason.append(", temp " + currenttemp.rate + " ~ req " + round(new_basaal, 2).withoutZeros() + "U/hr. ")
                     return rT
                 } else {
-                    rT.reason.append("; setting current basal of ${round(basal, 2)} as temp. ")
-                    return setTempBasal(basal, 30, profile, rT, currenttemp)
+                    rT.reason.append("; setting current basal of ${round(new_basaal, 2)} as temp. ")
+                    return setTempBasal(new_basaal, 30, profile, rT, currenttemp)
                 }
             }
 
@@ -1608,15 +1672,15 @@ class DetermineBasalDynSMB @Inject constructor(
                 insulinReq = newinsulinReq
             }
             // rate required to deliver insulinReq less insulin over 30m:
-            var rate = basal + (2 * insulinReq)
+            var rate = new_basaal + (2 * insulinReq)
             rate = round_basal(rate)
 
             // if required temp < existing temp basal
-            val insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60
+            val insulinScheduled = currenttemp.duration * (currenttemp.rate - new_basaal) / 60
             // if current temp would deliver a lot (30% of basal) less than the required insulin,
             // by both normal and naive calculations, then raise the rate
             val minInsulinReq = Math.min(insulinReq, naiveInsulinReq)
-            if (insulinScheduled < minInsulinReq - basal * 0.3) {
+            if (insulinScheduled < minInsulinReq - new_basaal * 0.3) {
                 rT.reason.append(", ${currenttemp.duration}m@${(currenttemp.rate).toFixed2()} is a lot less than needed. ")
                 return setTempBasal(rate, 30, profile, rT, currenttemp)
             }
@@ -1628,7 +1692,7 @@ class DetermineBasalDynSMB @Inject constructor(
                 if (rate <= 0) {
                     bgUndershoot = (target_bg - naive_eventualBG)
                     val worstCaseInsulinReq = bgUndershoot / sens
-                    var durationReq = round(60 * worstCaseInsulinReq / profile.current_basal * resistentie_basal_factor)
+                    var durationReq = round(60 * worstCaseInsulinReq / new_basaal)
                     if (durationReq < 0) {
                         durationReq = 0
                         // don't set a temp longer than 120 minutes
@@ -1661,12 +1725,12 @@ class DetermineBasalDynSMB @Inject constructor(
                 } else {
                     rT.reason.append("Eventual BG ${convert_bg(eventualBG)} > ${convert_bg(min_bg)} but Min. Delta ${minDelta.toFixed2()} < Exp. Delta ${convert_bg(expectedDelta)}")
                 }
-                if (currenttemp.duration > 15 && (round_basal(basal) == round_basal(currenttemp.rate))) {
-                    rT.reason.append(", temp " + currenttemp.rate + " ~ req " + round(basal, 2).withoutZeros() + "U/hr. ")
+                if (currenttemp.duration > 15 && (round_basal(new_basaal) == round_basal(currenttemp.rate))) {
+                    rT.reason.append(", temp " + currenttemp.rate + " ~ req " + round(new_basaal, 2).withoutZeros() + "U/hr. ")
                     return rT
                 } else {
-                    rT.reason.append("; setting current basal of ${round(basal, 2)} as temp. ")
-                    return setTempBasal(basal, 30, profile, rT, currenttemp)
+                    rT.reason.append("; setting current basal of ${round(new_basaal, 2)} as temp. ")
+                    return setTempBasal(new_basaal, 30, profile, rT, currenttemp)
                 }
             }
         }
@@ -1675,12 +1739,12 @@ class DetermineBasalDynSMB @Inject constructor(
             // if in SMB mode, don't cancel SMB zero temp
             if (!(microBolusAllowed && enableSMB)) {
                 rT.reason.append("${convert_bg(eventualBG)}-${convert_bg(minPredBG)} in range: no temp required")
-                if (currenttemp.duration > 15 && (round_basal(basal) == round_basal(currenttemp.rate))) {
-                    rT.reason.append(", temp ${currenttemp.rate} ~ req ${round(basal, 2).withoutZeros()}U/hr. ")
+                if (currenttemp.duration > 15 && (round_basal(new_basaal) == round_basal(currenttemp.rate))) {
+                    rT.reason.append(", temp ${currenttemp.rate} ~ req ${round(new_basaal, 2).withoutZeros()}U/hr. ")
                     return rT
                 } else {
-                    rT.reason.append("; setting current basal of ${round(basal, 2)} as temp. ")
-                    return setTempBasal(basal, 30, profile, rT, currenttemp)
+                    rT.reason.append("; setting current basal of ${round(new_basaal, 2)} as temp. ")
+                    return setTempBasal(new_basaal, 30, profile, rT, currenttemp)
                 }
             }
         }
@@ -1692,12 +1756,12 @@ class DetermineBasalDynSMB @Inject constructor(
         }
         if (iob_data.iob > max_iob) {
             rT.reason.append("IOB ${round(iob_data.iob, 2)} > max_iob $max_iob")
-            if (currenttemp.duration > 15 && (round_basal(basal) == round_basal(currenttemp.rate))) {
-                rT.reason.append(", temp ${currenttemp.rate} ~ req ${round(basal, 2).withoutZeros()}U/hr. ")
+            if (currenttemp.duration > 15 && (round_basal(new_basaal) == round_basal(currenttemp.rate))) {
+                rT.reason.append(", temp ${currenttemp.rate} ~ req ${round(new_basaal, 2).withoutZeros()}U/hr. ")
                 return rT
             } else {
-                rT.reason.append("; setting current basal of ${round(basal, 2)} as temp. ")
-                return setTempBasal(basal, 30, profile, rT, currenttemp)
+                rT.reason.append("; setting current basal of ${round(new_basaal, 2)} as temp. ")
+                return setTempBasal(new_basaal, 30, profile, rT, currenttemp)
             }
         } else { // otherwise, calculate 30m high-temp required to get projected BG down to target
             // insulinReq is the additional insulin required to get minPredBG down to target_bg
@@ -1710,7 +1774,7 @@ class DetermineBasalDynSMB @Inject constructor(
             }
 
             // rate required to deliver insulinReq more insulin over 30m:
-            var rate = basal + (2 * insulinReq)
+            var rate = new_basaal + (2 * insulinReq)
             rate = round_basal(rate)
             insulinReq = round(insulinReq, 3)
 
@@ -1723,9 +1787,9 @@ class DetermineBasalDynSMB @Inject constructor(
                 // never bolus more than maxSMBBasalMinutes worth of basal
                 val mealInsulinReq = round(meal_data.mealCOB / 7.0, 3)
                 if (iob_data.iob > mealInsulinReq && iob_data.iob > 0) {
-                  maxBolus = round(profile.current_basal* resistentie_basal_factor * profile.maxUAMSMBBasalMinutes / 60, 1)
+                  maxBolus = round(new_basaal * profile.maxUAMSMBBasalMinutes / 60, 1)
                 } else {
-                  maxBolus = round(profile.current_basal* resistentie_basal_factor * profile.maxSMBBasalMinutes / 60, 1)
+                  maxBolus = round(new_basaal * profile.maxSMBBasalMinutes / 60, 1)
                 }
 
                 // bolus 1/2 the insulinReq, up to maxBolus, rounding down to nearest bolus increment
@@ -1735,7 +1799,7 @@ class DetermineBasalDynSMB @Inject constructor(
                 // calculate a long enough zero temp to eventually correct back up to target
                 val smbTarget = target_bg
                 val worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG) / 2.0) / sens
-                var durationReq = round(60 * worstCaseInsulinReq / profile.current_basal* resistentie_basal_factor)
+                var durationReq = round(60 * worstCaseInsulinReq / new_basaal)
 
                 // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
                 if (insulinReq > 0 && microBolus < profile.bolus_increment) {
@@ -1751,7 +1815,7 @@ class DetermineBasalDynSMB @Inject constructor(
                     durationReq = min(60, max(0, durationReq))
                 } else {
                     // if SMB durationReq is less than 30m, set a nonzero low temp
-                    smbLowTempReq = round(basal * durationReq / 30.0, 2)
+                    smbLowTempReq = round(new_basaal * durationReq / 30.0, 2)
                     durationReq = 30
                 }
                 rT.reason.append(" insulinReq $insulinReq")
@@ -1799,7 +1863,7 @@ class DetermineBasalDynSMB @Inject constructor(
                 rate = round_basal(maxSafeBasal)
             }
 
-            val insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60
+            val insulinScheduled = currenttemp.duration * (currenttemp.rate - new_basaal) / 60
             if (insulinScheduled >= insulinReq * 2) { // if current temp would deliver >2x more than the required insulin, lower the rate
                 rT.reason.append("${currenttemp.duration}m@${(currenttemp.rate).toFixed2()} > 2 * insulinReq. Setting temp basal of ${round(rate, 2)}U/hr. ")
                 return setTempBasal(rate, 30, profile, rT, currenttemp)

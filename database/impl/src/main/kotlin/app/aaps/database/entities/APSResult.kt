@@ -45,6 +45,7 @@ data class APSResult(
         SMB,
         AIMI,
         AUTO_ISF,
-        DYNAMIC
+        DYNAMIC,
+        AUTO
     }
 }
